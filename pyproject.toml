@@ -10,6 +10,8 @@ python = "^3.12"
 fastapi = "^0.115.6"
 pydantic-settings = "^2.6.1"
 sqlalchemy = {extras = ["asyncio"], version = "^2.0.36"}
+uvicorn = "^0.32.1"
+asyncpg = "^0.30.0"
 
 
 [tool.poetry.group.dev.dependencies]
@@ -74,4 +76,4 @@ ignore = [
 ]
 
 [tool.ruff.lint.isort]
-known-first-party = ["api", "core", "migration_utils", "main"]
+known-first-party = ["core", "migration_utils", "main"]
