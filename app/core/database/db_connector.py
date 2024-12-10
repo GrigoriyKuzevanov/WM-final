@@ -64,9 +64,9 @@ class DataBaseConnector:
 
 
 db_connector = DataBaseConnector(
-    url=settings.main_pg_db.postgres_url.unicode_string(),
-    echo=settings.main_pg_db.echo_sql,
-    echo_pool=settings.main_pg_db.echo_pool,
-    pool_size=settings.main_pg_db.pool_size,
-    max_overflow=settings.main_pg_db.max_overflow,
+    url=settings.main_db.postgres_url.unicode_string(),
+    echo=settings.main_db.echo_sql,
+    echo_pool=settings.main_db.echo_pool,
+    pool_size=settings.main_db.pool_size,
+    max_overflow=settings.main_db.max_overflow,
 )
