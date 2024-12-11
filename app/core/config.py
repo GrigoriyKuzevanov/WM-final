@@ -3,6 +3,22 @@ from pydantic_core import MultiHostUrl
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
+class RunConfig(BaseModel):
+    """A class for app running settings.
+
+    Attributes:
+        app (str): Entrypoint to start fastapi app by uvicorn
+        host (str): Host to start app on
+        port (int): Port to start app on
+        auto_reload (bool): Auto reload app
+    """
+
+    app: str
+    host: str
+    port: int
+    auto_reload: bool
+
+
 class PostgresDBConfig(BaseModel):
     """Main database connection settings model.
 
@@ -71,11 +87,13 @@ class Settings(BaseSettings):
     environment variables.
 
     Attributes:
+        run (RunConfig): Running application settings model
         main_db (PostgresDBConfig): Main database connection settings model
 
         model_config (SettingsConfigDict): Settings configuration
     """
 
+    run: RunConfig
     main_db: PostgresDBConfig
 
     model_config = SettingsConfigDict(
