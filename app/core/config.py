@@ -82,17 +82,45 @@ class PostgresDBConfig(BaseModel):
         )
 
 
+class AlembicConfig(BaseModel):
+    """A class for alembic settings.
+
+    Attributes:
+        script_location (str): Location for alembic script. "migration/utils/alembic" by
+        default
+
+        version_locations (str): Locatin for vesions files. "" by default
+
+        file_template (str): A template for vesion file's names
+        "%%(year)d_%%(month).2d_%%(day).2d_%%(hour).2d%%(minute).2d-%%(rev)s_%%(slug)s"
+        by default
+
+        timezone (str): Alembic timezone: "UTC" by default
+    """
+
+    script_location: str = "migration_utils/alembic"
+    version_locations: str = ""
+    file_template: str = (
+        "%%(year)d_%%(month).2d_%%(day).2d_%%(hour).2d%%(minute).2d-%%(rev)s_%%(slug)s"
+    )
+    timezone: str = "UTC"
+
+
 class Settings(BaseSettings):
     """A base class for app's settings. Settings values might be overriden by
     environment variables.
 
     Attributes:
+        alembic (AlembicConfig): Alembic configuration settings model
+
         run (RunConfig): Running application settings model
+
         main_db (PostgresDBConfig): Main database connection settings model
 
         model_config (SettingsConfigDict): Settings configuration
     """
 
+    alembic: AlembicConfig = AlembicConfig()
     run: RunConfig
     main_db: PostgresDBConfig
 
