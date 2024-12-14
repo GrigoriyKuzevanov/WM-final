@@ -27,6 +27,7 @@ build-backend = "poetry.core.masonry.api"
 [tool.ruff]
 include = ["*.py"]
 exclude = [
+    "__init__.py",
     "*/.*",
     "*/__pycache__/*",
     "*.test.py",
