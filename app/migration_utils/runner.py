@@ -18,7 +18,7 @@ def make_config() -> Config:
         "version_locations", settings.alembic.version_locations
     )
     alembic_config.set_main_option(
-        "sqlalchemy.url", settings.main_pg_db.postgres_url.unicode_string()
+        "sqlalchemy.url", settings.main_db.postgres_url.unicode_string()
     )
     alembic_config.set_main_option("file_template", settings.alembic.file_template)
     alembic_config.set_main_option("timezone", settings.alembic.timezone)
