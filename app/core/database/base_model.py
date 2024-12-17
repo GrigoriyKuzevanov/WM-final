@@ -23,9 +23,9 @@ class Base(DeclarativeBase):
     )
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    created_on: Mapped[datetime.datetime] = mapped_column(
+    created_at: Mapped[datetime.datetime] = mapped_column(
         DateTime(timezone=True), server_default=text("now()")
     )
-    updated_on: Mapped[datetime.datetime] = mapped_column(
+    updated_at: Mapped[datetime.datetime] = mapped_column(
         DateTime(timezone=True), server_default=text("now()"), onupdate=text("now()")
     )
