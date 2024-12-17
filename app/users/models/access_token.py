@@ -10,6 +10,12 @@ from core.database import Base
 
 
 class AccessToken(Base, SQLAlchemyBaseAccessTokenTable[int]):
+    """A class for representation access_tokens table in the database.
+
+    Attributes:
+        user_id (Mapped[int]): Id of the associated user.
+    """
+
     __tablename__ = "access_tokens"
 
     user_id: Mapped[int] = mapped_column(
@@ -17,5 +23,15 @@ class AccessToken(Base, SQLAlchemyBaseAccessTokenTable[int]):
     )
 
     @classmethod
-    def get_db(cls, session: AsyncSession):
+    def get_db(cls, session: AsyncSession) -> SQLAlchemyAccessTokenDatabase:
+        """Provides database adapter for access token model.
+
+        Args:
+            session (AsyncSession): Async database session to connect
+
+        Returns:
+            SQLAlchemyAccessTokenDatabase: Fastapi-users sqlalchemy adapter for access
+            token model
+        """
+
         return SQLAlchemyAccessTokenDatabase(session, cls)
