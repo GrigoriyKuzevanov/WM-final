@@ -106,12 +106,24 @@ class AlembicConfig(BaseModel):
     timezone: str = "UTC"
 
 
+class AccessTokenConfig(BaseModel):
+    """A class for access token settings.
+
+    Args:
+        lifetime_seconds (int): Lifetime of the token
+    """
+
+    lifetime_seconds: int = 3600
+
+
 class Settings(BaseSettings):
     """A base class for app's settings. Settings values might be overriden by
     environment variables.
 
     Attributes:
         alembic (AlembicConfig): Alembic configuration settings model
+
+        access_token (AccessTokenConfig): Access token settings model
 
         run (RunConfig): Running application settings model
 
@@ -121,6 +133,7 @@ class Settings(BaseSettings):
     """
 
     alembic: AlembicConfig = AlembicConfig()
+    access_token: AccessTokenConfig = AccessTokenConfig()
     run: RunConfig
     main_db: PostgresDBConfig
 
