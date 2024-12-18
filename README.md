@@ -2,7 +2,7 @@
 
 ## env variables
 - .env-compose file for variables using in docker-compose.yml
-```bash
+```shell
 # main-db
 DB_USER=wm-user
 DB_PASSWORD=wm-password
@@ -12,4 +12,29 @@ DB_NAME=wm-db-name
 REDIS_PASSWORD=redis-password
 REDIS_USER=redis-user
 REDIS_USER_PASSWORD=redis-user-password
+```
+
+- .env file for variables using for project settings
+```shell
+# Run application
+CONFIG__RUN__APP=main:app
+CONFIG__RUN__HOST=localhost
+CONFIG__RUN__PORT=8000
+CONFIG__RUN__AUTO_RELOAD=True
+
+# Main database
+CONFIG__MAIN_DB__DB_USER=wm-user
+CONFIG__MAIN_DB__DB_PASSWORD=wm-password
+CONFIG__MAIN_DB__DB_HOST=localhost
+CONFIG__MAIN_DB__DB_PORT=5431
+CONFIG__MAIN_DB__DB_NAME=wm-db-name
+
+# Fastapi-users
+# access token secrets
+CONFIG__ACCESS_TOKEN__RESET_PASSWORD_TOKEN_SECRET=<your secret>
+CONFIG__ACCESS_TOKEN__VERIFICATION_TOKEN_SECRET=<your secret>
+```
+- to generate secret you can use next command
+```shell
+python -c "import secrets; print(secrets.token_hex())"
 ```
