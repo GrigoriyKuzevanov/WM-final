@@ -111,9 +111,15 @@ class AccessTokenConfig(BaseModel):
 
     Args:
         lifetime_seconds (int): Lifetime of the token
+
+        reset_password_token_secret (str): Secret string for reset password
+
+        verification_token_secret (str): Secret string for verification token
     """
 
     lifetime_seconds: int = 3600
+    reset_password_token_secret: str
+    verification_token_secret: str
 
 
 class Settings(BaseSettings):
@@ -133,7 +139,7 @@ class Settings(BaseSettings):
     """
 
     alembic: AlembicConfig = AlembicConfig()
-    access_token: AccessTokenConfig = AccessTokenConfig()
+    access_token: AccessTokenConfig = AccessTokenConfig
     run: RunConfig
     main_db: PostgresDBConfig
 
