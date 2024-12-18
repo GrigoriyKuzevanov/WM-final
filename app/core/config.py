@@ -19,6 +19,18 @@ class RunConfig(BaseModel):
     auto_reload: bool
 
 
+class ApiPrefix(BaseModel):
+    """A class for api prefixes configuration.
+
+    Attributes:
+        api_prefix (str): An api url prefix. Defaults to "/api"
+        auth (str): Auth url prefix. Defaults to "/auth"
+    """
+
+    api_prefix: str = "/api"
+    auth: str = "/auth"
+
+
 class PostgresDBConfig(BaseModel):
     """Main database connection settings model.
 
@@ -139,6 +151,7 @@ class Settings(BaseSettings):
     """
 
     alembic: AlembicConfig = AlembicConfig()
+    prefix: ApiPrefix = ApiPrefix()
     access_token: AccessTokenConfig = AccessTokenConfig
     run: RunConfig
     main_db: PostgresDBConfig
