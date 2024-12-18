@@ -24,11 +24,25 @@ class ApiPrefix(BaseModel):
 
     Attributes:
         api_prefix (str): An api url prefix. Defaults to "/api"
+
         auth (str): Auth url prefix. Defaults to "/auth"
+
+        users (str): Url prefix for users routes. Defaults to "/users"
     """
 
     api_prefix: str = "/api"
+    users: str = "/users"
     auth: str = "/auth"
+
+    @computed_field
+    @property
+    def get_bearer_token_url(self) -> str:
+        """Builds string for bearer transport token url.
+
+        Returns:
+            str: token url. Formate: "api/auth/login"
+        """
+        return f"{self.api_prefix}{self.auth}/login"[1:]
 
 
 class PostgresDBConfig(BaseModel):
@@ -141,6 +155,8 @@ class Settings(BaseSettings):
     Attributes:
         alembic (AlembicConfig): Alembic configuration settings model
 
+        prefix (ApiPrefix): Api prefixes configuration settings model
+
         access_token (AccessTokenConfig): Access token settings model
 
         run (RunConfig): Running application settings model
@@ -152,7 +168,7 @@ class Settings(BaseSettings):
 
     alembic: AlembicConfig = AlembicConfig()
     prefix: ApiPrefix = ApiPrefix()
-    access_token: AccessTokenConfig = AccessTokenConfig
+    access_token: AccessTokenConfig
     run: RunConfig
     main_db: PostgresDBConfig
 
