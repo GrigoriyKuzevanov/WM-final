@@ -33,8 +33,18 @@ CONFIG__MAIN_DB__DB_NAME=wm-db-name
 # access token secrets
 CONFIG__ACCESS_TOKEN__RESET_PASSWORD_TOKEN_SECRET=<your secret>
 CONFIG__ACCESS_TOKEN__VERIFICATION_TOKEN_SECRET=<your secret>
+
+# superuser credentials
+CONFIG__SUPERUSER__EMAIL=<your admin email>
+CONFIG__SUPERUSER__PASSWORD=<your admin password>
 ```
 - to generate secret you can use next command
 ```shell
 python -c "import secrets; print(secrets.token_hex())"
+```
+
+## Usage
+- create superuser
+```shell
+python -m app.scripts.create_superuser
 ```
