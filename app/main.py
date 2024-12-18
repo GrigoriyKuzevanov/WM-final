@@ -4,9 +4,13 @@ from fastapi import FastAPI
 from core.config import settings
 from core.lifespan import lifespan
 
+from .api_router import router as api_router
+
 app = FastAPI(
     lifespan=lifespan,
 )
+
+app.include_router(api_router)
 
 
 if __name__ == "__main__":
