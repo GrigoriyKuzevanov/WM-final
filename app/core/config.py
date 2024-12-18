@@ -135,7 +135,7 @@ class AlembicConfig(BaseModel):
 class AccessTokenConfig(BaseModel):
     """A class for access token settings.
 
-    Args:
+    Attributes:
         lifetime_seconds (int): Lifetime of the token
 
         reset_password_token_secret (str): Secret string for reset password
@@ -148,6 +148,24 @@ class AccessTokenConfig(BaseModel):
     verification_token_secret: str
 
 
+class SuperUserConfig(BaseModel):
+    """A class with superuser credentials for create superuser script.
+
+    Attributes:
+        email (str): Superuser's  email
+        password (str): Superuser's password
+        is_active (bool): Superuser's active status. Defaults to "True"
+        is_superuser (bool): Superuser's superuser status. Defaults to "True"
+        is_verified (bool): Superuser's verified status. Defaults to "True"
+    """
+
+    email: str
+    password: str
+    is_active: bool = True
+    is_superuser: bool = True
+    is_verified: bool = True
+
+
 class Settings(BaseSettings):
     """A base class for app's settings. Settings values might be overriden by
     environment variables.
@@ -156,6 +174,8 @@ class Settings(BaseSettings):
         alembic (AlembicConfig): Alembic configuration settings model
 
         prefix (ApiPrefix): Api prefixes configuration settings model
+
+        superuser (SuperUserConfig): Superusers credentials settings model
 
         access_token (AccessTokenConfig): Access token settings model
 
@@ -168,6 +188,7 @@ class Settings(BaseSettings):
 
     alembic: AlembicConfig = AlembicConfig()
     prefix: ApiPrefix = ApiPrefix()
+    superuser: SuperUserConfig
     access_token: AccessTokenConfig
     run: RunConfig
     main_db: PostgresDBConfig
