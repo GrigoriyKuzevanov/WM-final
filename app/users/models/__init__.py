@@ -1,4 +1,4 @@
-__all__ = ("User", "AccessToken")
+__all__ = ("AccessToken", "User")
 
-from .user import User
 from .access_token import AccessToken
+from .user import User
