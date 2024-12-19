@@ -3,13 +3,13 @@ import contextlib
 import logging
 
 from fastapi_users.exceptions import UserAlreadyExists
+
+from core.config import settings
+from core.models import db_connector
 from users.auth.user_manager import UserManager
 from users.dependencies.user_manager import get_user_manager
 from users.dependencies.users import get_user_db
 from users.schemas import UserCreate
-
-from core.config import settings
-from core.database import db_connector
 
 logger = logging.getLogger(__name__)
 
