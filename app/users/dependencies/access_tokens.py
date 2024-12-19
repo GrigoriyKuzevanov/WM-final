@@ -4,7 +4,7 @@ from fastapi import Depends
 from fastapi_users_db_sqlalchemy.access_token import SQLAlchemyAccessTokenDatabase
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from core.database import db_connector
+from core.models import db_connector
 from users.models import AccessToken
 
 
