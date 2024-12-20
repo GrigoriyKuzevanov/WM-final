@@ -18,6 +18,8 @@ association_table = Table(
 
 
 class Role(Base):
+    """A class for represtation roles table in the database"""
+
     __tablename__ = "roles"
 
     name: Mapped[str] = mapped_column(nullable=False)
