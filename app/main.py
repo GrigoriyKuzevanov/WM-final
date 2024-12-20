@@ -1,4 +1,5 @@
 import uvicorn
+from admin.admin_app import admin
 from fastapi import FastAPI
 
 from core.config import settings
@@ -11,6 +12,8 @@ app = FastAPI(
 )
 
 app.include_router(api_router)
+
+admin.mount_to(app)
 
 
 if __name__ == "__main__":
