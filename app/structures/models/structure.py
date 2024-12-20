@@ -8,6 +8,7 @@ from core.models.base_model import Base
 if TYPE_CHECKING:
     from .relation import Relation
     from .role import Role
+    from .team import Team
 
 
 association_table = Table(
@@ -30,3 +31,4 @@ class Structure(Base):
         cascade="all, delete",
     )
     relations: Mapped[list["Relation"]] = relationship(back_populates="structure")
+    teams: Mapped[list["Team"]] = relationship(back_populates="structure")
