@@ -15,6 +15,7 @@ asyncpg = "^0.30.0"
 alembic = "^1.14.0"
 fastapi-users = {extras = ["sqlalchemy"], version = "^14.0.0"}
 redis = {extras = ["asyncio"], version = "^5.2.1"}
+starlette-admin = "^0.14.1"
 
 
 [tool.poetry.group.dev.dependencies]
