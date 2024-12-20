@@ -6,7 +6,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from core.models.base_model import Base
 
 if TYPE_CHECKING:
-    from .structure import Structure
+    from .structure import Role, Structure
 
 
 class Relation(Base):
@@ -25,6 +25,13 @@ class Relation(Base):
     )
     structure: Mapped["Structure"] = relationship(
         "Structure", back_populates="relations"
+    )
+
+    superior: Mapped["Role"] = relationship(
+        foreign_keys=[superior_id], back_populates="superiors"
+    )
+    subordinate: Mapped["Role"] = relationship(
+        foreign_keys=[subordinate_id], back_populates="subordinates"
     )
 
     __table_args__ = (

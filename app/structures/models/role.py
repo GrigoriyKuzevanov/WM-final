@@ -4,8 +4,12 @@ from sqlalchemy import Column, ForeignKey, Table
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from core.models.base_model import Base
+from structures.models.structure import (
+    association_table as roles_structures_association,
+)
 
 if TYPE_CHECKING:
+    from structures.models import Relation, Structure
     from users.models import User
 
 
@@ -25,4 +29,15 @@ class Role(Base):
     name: Mapped[str] = mapped_column(nullable=False)
     users: Mapped[list["User"]] = relationship(
         secondary=association_table, back_populates="roles", cascade="all, delete"
+    )
+    structures: Mapped[list["Structure"]] = relationship(
+        secondary=roles_structures_association,
+        back_populates="roles",
+        cascade="all, delete",
+    )
+    superiors: Mapped[list["Relation"]] = relationship(
+        foreign_keys="Relation.superior_id", back_populates="superior"
+    )
+    subordinates: Mapped[list["Relation"]] = relationship(
+        foreign_keys="Relation.subordinate_id", back_populates="subordinate"
     )
