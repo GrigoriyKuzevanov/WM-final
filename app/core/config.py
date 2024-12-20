@@ -169,6 +169,24 @@ class SuperUserConfig(BaseModel):
     is_verified: bool = True
 
 
+class RedisConfig(BaseModel):
+    """A class for redis connection settings.
+
+    Attributes:
+        user (str): Redis user name
+        password (str): Redis user password
+        host (str): Host to connect
+        port (int): Port to connect
+        db (int): Redis database to connect
+    """
+
+    user: str
+    password: str
+    host: str
+    port: int
+    db: int
+
+
 class Settings(BaseSettings):
     """A base class for app's settings. Settings values might be overriden by
     environment variables.
@@ -191,6 +209,7 @@ class Settings(BaseSettings):
 
     alembic: AlembicConfig = AlembicConfig()
     prefix: ApiPrefix = ApiPrefix()
+    redis: RedisConfig
     superuser: SuperUserConfig
     access_token: AccessTokenConfig
     run: RunConfig
