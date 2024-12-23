@@ -187,6 +187,16 @@ class RedisConfig(BaseModel):
     db: int
 
 
+class SessionMiddlewareConfig(BaseModel):
+    """A class for session middleware settings using in starlette-admin.
+
+    Attributes:
+        secret_key (str): Secret key for session middleware
+    """
+
+    secret_key: str
+
+
 class Settings(BaseSettings):
     """A base class for app's settings. Settings values might be overriden by
     environment variables.
@@ -195,6 +205,8 @@ class Settings(BaseSettings):
         alembic (AlembicConfig): Alembic configuration settings model
 
         prefix (ApiPrefix): Api prefixes configuration settings model
+
+        session_middleware (SessionMiddlewareConfig): SessionMiddlware settings model
 
         superuser (SuperUserConfig): Superusers credentials settings model
 
@@ -209,6 +221,7 @@ class Settings(BaseSettings):
 
     alembic: AlembicConfig = AlembicConfig()
     prefix: ApiPrefix = ApiPrefix()
+    session_middleware: SessionMiddlewareConfig
     redis: RedisConfig
     superuser: SuperUserConfig
     access_token: AccessTokenConfig
