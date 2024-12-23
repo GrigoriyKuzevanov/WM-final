@@ -1,11 +1,14 @@
-from starlette_admin.contrib.sqla import Admin, ModelView
+from starlette_admin.contrib.sqla import Admin
 
 from core.models import Relation, Role, Structure, Team, User, db_connector
 
-admin = Admin(engine=db_connector.engine)
+from .auth_provider import auth_provider
+from .views import RelationView, RoleView, StructureView, TeamView, UserView
 
-admin.add_view(ModelView(User))
-admin.add_view(ModelView(Role))
-admin.add_view(ModelView(Relation))
-admin.add_view(ModelView(Structure))
-admin.add_view(ModelView(Team))
+admin = Admin(engine=db_connector.engine, auth_provider=auth_provider, title="Teams")
+
+admin.add_view(UserView(User, label="Пользователи"))
+admin.add_view(RoleView(Role, label="Роли"))
+admin.add_view(RelationView(Relation, label="Иерархия"))
+admin.add_view(StructureView(Structure, label="Структуры"))
+admin.add_view(TeamView(Team, label="Команды"))
