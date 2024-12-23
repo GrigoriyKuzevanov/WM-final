@@ -1,6 +1,7 @@
-from pydantic import BaseModel, PostgresDsn, computed_field
+from pydantic import BaseModel, PostgresDsn, StringConstraints, computed_field, constr
 from pydantic_core import MultiHostUrl
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from typing_extensions import Annotated
 
 
 class RunConfig(BaseModel):
@@ -157,6 +158,9 @@ class SuperUserConfig(BaseModel):
     Attributes:
         email (str): Superuser's  email
         password (str): Superuser's password
+        name (str): Name for superuser
+        last_name (str): Last name for superuser
+        info (str): Addictional info for superuser. Defaults to None
         is_active (bool): Superuser's active status. Defaults to "True"
         is_superuser (bool): Superuser's superuser status. Defaults to "True"
         is_verified (bool): Superuser's verified status. Defaults to "True"
@@ -164,6 +168,9 @@ class SuperUserConfig(BaseModel):
 
     email: str
     password: str
+    name: Annotated[str, StringConstraints(max_length=60)]
+    last_name: Annotated[str, StringConstraints(max_length=60)]
+    info: str | None = None
     is_active: bool = True
     is_superuser: bool = True
     is_verified: bool = True
