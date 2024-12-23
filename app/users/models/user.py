@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING
 from fastapi_users_db_sqlalchemy import SQLAlchemyBaseUserTable, SQLAlchemyUserDatabase
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Mapped, relationship
+from starlette.requests import Request
 
 from core.models.base_model import Base
 from structures.models.role import association_table
@@ -19,6 +20,18 @@ class User(Base, SQLAlchemyBaseUserTable[int]):
     roles: Mapped[list["Role"]] = relationship(
         secondary=association_table, back_populates="users", cascade="all, delete"
     )
+
+    async def __admin_repr__(self, request: Request) -> str:
+        """Model's representation in admin.
+
+        Args:
+            request (_type_): Request instance
+
+        Returns:
+            str: Model's string representation
+        """
+
+        return f"{self.email}"
 
     @classmethod
     def get_db(cls, session: AsyncSession) -> SQLAlchemyUserDatabase:
