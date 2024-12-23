@@ -35,6 +35,9 @@ async def create_user(user_manager: UserManager, user_create: UserCreate) -> Non
 async def create_superuser(
     email: str = settings.superuser.email,
     password: str = settings.superuser.password,
+    name: str = settings.superuser.name,
+    last_name: str = settings.superuser.last_name,
+    info: str | None = settings.superuser.info,
     is_active: bool = settings.superuser.is_active,
     is_superuser: bool = settings.superuser.is_superuser,
     is_verified: bool = settings.superuser.is_verified,
@@ -45,6 +48,9 @@ async def create_superuser(
     Args:
         email (str): Superuser's  email
         password (str): Superuser's password
+        name (str): Name for superuser
+        last_name (str): Last name for superuser
+        info (str | None): Addictional info for superuser
         is_active (bool): Superuser's active status
         is_superuser (bool): Superuser's superuser status
         is_verified (bool): Superuser's verified status
@@ -53,6 +59,9 @@ async def create_superuser(
     user_create = UserCreate(
         email=email,
         password=password,
+        name=name,
+        last_name=last_name,
+        info=info,
         is_active=is_active,
         is_superuser=is_superuser,
         is_verified=is_verified,
