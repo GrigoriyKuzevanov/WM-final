@@ -2,12 +2,18 @@ from fastapi_users import schemas
 
 
 class UserRead(schemas.BaseUser[int]):
-    pass
+    name: str
+    last_name: str
+    info: str
 
 
 class UserCreate(schemas.BaseUserCreate):
-    pass
+    name: str
+    last_name: str
+    info: str | None
 
 
 class UserUpdate(schemas.BaseUserUpdate):
-    pass
+    name: str
+    last_name: str
+    info: str | None
