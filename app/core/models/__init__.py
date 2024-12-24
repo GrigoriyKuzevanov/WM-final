@@ -6,7 +6,6 @@ __all__ = (
     "Role",
     "Structure",
     "roles_users_association",
-    "roles_structures_association",
     "Relation",
     "Team",
 )
@@ -17,7 +16,6 @@ from structures.models import (
     Role,
     Structure,
     Team,
-    roles_structures_association,
     roles_users_association,
 )
 from users.models import AccessToken, User

@@ -5,9 +5,6 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from starlette.requests import Request
 
 from core.models.base_model import Base
-from structures.models.structure import (
-    association_table as roles_structures_association,
-)
 
 if TYPE_CHECKING:
     from structures.models import Relation, Structure
@@ -29,11 +26,14 @@ class Role(Base):
 
     name: Mapped[str] = mapped_column(nullable=False)
     info: Mapped[str]
+    structure_id: Mapped[int] = mapped_column(
+        ForeignKey("structures.id", ondelete="CASCADE"), nullable=False
+    )
+
     users: Mapped[list["User"]] = relationship(
         secondary=association_table, back_populates="roles", cascade="all, delete"
     )
-    structures: Mapped[list["Structure"]] = relationship(
-        secondary=roles_structures_association,
+    structure: Mapped["Structure"] = relationship(
         back_populates="roles",
         cascade="all, delete",
     )
