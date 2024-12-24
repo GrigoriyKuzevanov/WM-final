@@ -28,6 +28,7 @@ class Role(Base):
     __tablename__ = "roles"
 
     name: Mapped[str] = mapped_column(nullable=False)
+    info: Mapped[str]
     users: Mapped[list["User"]] = relationship(
         secondary=association_table, back_populates="roles", cascade="all, delete"
     )

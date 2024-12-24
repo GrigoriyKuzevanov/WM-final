@@ -16,6 +16,8 @@ class Team(Base):
     __tablename__ = "teams"
 
     name: Mapped[str] = mapped_column(nullable=False)
+    info: Mapped[str]
+
     structure_id: Mapped[int] = mapped_column(
         ForeignKey("structures.id", ondelete="CASCADE"), nullable=False
     )

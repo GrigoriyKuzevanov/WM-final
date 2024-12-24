@@ -26,6 +26,8 @@ class Structure(Base):
     __tablename__ = "structures"
 
     name: Mapped[str] = mapped_column(nullable=False)
+    info: Mapped[str]
+
     roles: Mapped[list["Role"]] = relationship(
         secondary=association_table,
         back_populates="structures",
