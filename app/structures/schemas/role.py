@@ -2,12 +2,16 @@ from pydantic import BaseModel
 
 
 class RoleBase(BaseModel):
-    pass
+    name: str
+    info: str
+
+    model_config = {"from_attributes": True}
 
 
 class RoleOut(RoleBase):
-    pass
+    id: int
+    structure_id: int
 
 
 class RoleCreate(RoleBase):
-    pass
+    structure_id: int

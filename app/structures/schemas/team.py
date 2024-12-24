@@ -2,12 +2,15 @@ from pydantic import BaseModel
 
 
 class TeamBase(BaseModel):
-    pass
+    name: str
+    info: str
+
+    model_config = {"from_attributes": True}
 
 
 class TeamOut(TeamBase):
-    pass
+    id: int
 
 
 class TeamCreate(TeamBase):
-    pass
+    structure_id: int

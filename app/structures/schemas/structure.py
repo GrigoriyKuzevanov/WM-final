@@ -2,11 +2,14 @@ from pydantic import BaseModel
 
 
 class StructureBase(BaseModel):
-    pass
+    name: str
+    info: str
+
+    model_config = {"from_attributes": True}
 
 
 class StructureOut(StructureBase):
-    pass
+    id: int
 
 
 class StructureCreate(StructureBase):
