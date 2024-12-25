@@ -1,13 +1,12 @@
 from typing import TYPE_CHECKING
 
 from fastapi_users_db_sqlalchemy import SQLAlchemyBaseUserTable, SQLAlchemyUserDatabase
-from sqlalchemy import String
+from sqlalchemy import ForeignKey, String
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from starlette.requests import Request
 
 from core.models.base_model import Base
-from structures.models.role import association_table
 
 if TYPE_CHECKING:
     from structures.models.role import Role
@@ -21,10 +20,11 @@ class User(Base, SQLAlchemyBaseUserTable[int]):
     name: Mapped[str] = mapped_column(String(length=60))
     last_name: Mapped[str] = mapped_column(String(length=60))
     info: Mapped[str] = mapped_column(nullable=True)
-
-    roles: Mapped[list["Role"]] = relationship(
-        secondary=association_table, back_populates="users", cascade="all, delete"
+    role_id: Mapped[int] = mapped_column(
+        ForeignKey("roles.id", ondelete="SET NULL"), nullable=True
     )
+
+    role: Mapped["Role"] = relationship(back_populates="users")
 
     async def __admin_repr__(self, request: Request) -> str:
         """Model's representation in admin.

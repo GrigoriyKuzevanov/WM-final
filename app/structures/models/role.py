@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Column, ForeignKey, Table
+from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from starlette.requests import Request
 
@@ -9,14 +9,6 @@ from core.models.base_model import Base
 if TYPE_CHECKING:
     from structures.models import Relation, Structure
     from users.models import User
-
-
-association_table = Table(
-    "roles_users_association",
-    Base.metadata,
-    Column("user_id", ForeignKey("users.id", ondelete="CASCADE")),
-    Column("role_id", ForeignKey("roles.id", ondelete="CASCADE")),
-)
 
 
 class Role(Base):
@@ -30,9 +22,7 @@ class Role(Base):
         ForeignKey("structures.id", ondelete="CASCADE"), nullable=False
     )
 
-    users: Mapped[list["User"]] = relationship(
-        secondary=association_table, back_populates="roles", cascade="all, delete"
-    )
+    users: Mapped[list["User"]] = relationship(back_populates="role")
     structure: Mapped["Structure"] = relationship(
         back_populates="roles",
         cascade="all, delete",
