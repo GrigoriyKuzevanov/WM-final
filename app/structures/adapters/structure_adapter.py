@@ -16,7 +16,7 @@ SM = TypeVar("SM", bound=Structure)
 class StructureAdapter(ModelAdapter):
     """Adapter class for performing database operations to the Structure model."""
 
-    def __init__(self, session: AsyncSession):
+    def __init__(self, session: AsyncSession) -> None:
         """Initializes the adapter
 
         Args:

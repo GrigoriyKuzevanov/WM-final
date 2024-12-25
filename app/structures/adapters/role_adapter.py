@@ -1,20 +1,37 @@
-from pydantic import BaseModel
-from sqlalchemy import select
+from typing import TypeVar
+
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from core.models import Base
 from structures.models import Role
 from users.models import User
 
 from .model_adapter import ModelAdapter
 
+RM = TypeVar("RM", bound=Role)
+
 
 class RoleAdapter(ModelAdapter):
-    def __init__(self, session: AsyncSession):
-        self.model = Role
-        self.session = session
+    """Adapter class for performing database operations to the Team model."""
 
-    async def add_user(self, user_id: int) -> Role:
+    def __init__(self, session: AsyncSession) -> None:
+        """Initializes the adapter
+
+        Args:
+            session (AsyncSession): Async session
+        """
+
+        super().__init__(Role, session)
+
+    async def add_user(self, user_id: int) -> RM:
+        """Bound user to the role.
+
+        Args:
+            user_id (int): User id
+
+        Returns:
+            Role: Updated role object
+        """
+
         user = await self.session.get(User, user_id)
         self.model.users.append(user)
 

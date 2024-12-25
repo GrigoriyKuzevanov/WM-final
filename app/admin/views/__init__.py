@@ -1,7 +1,6 @@
-__all__ = ("UserView", "RoleView", "StructureView", "RelationView", "TeamView")
+__all__ = ("UserView", "RoleView", "StructureView", "RelationView")
 
 from .relation import RelationView
 from .role import RoleView
 from .structure import StructureView
-from .team import TeamView
 from .user import UserView

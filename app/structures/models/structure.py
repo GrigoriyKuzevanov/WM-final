@@ -8,7 +8,6 @@ from core.models.base_model import Base
 if TYPE_CHECKING:
     from .relation import Relation
     from .role import Role
-    from .team import Team
 
 
 class Structure(Base):
@@ -24,7 +23,6 @@ class Structure(Base):
         cascade="all, delete",
     )
     relations: Mapped[list["Relation"]] = relationship(back_populates="structure")
-    teams: Mapped[list["Team"]] = relationship(back_populates="structure")
 
     async def __admin_repr__(self, request: Request) -> str:
         """Model's representation in admin.
