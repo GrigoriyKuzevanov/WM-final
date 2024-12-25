@@ -25,7 +25,6 @@ class Role(Base):
     users: Mapped[list["User"]] = relationship(back_populates="role")
     structure: Mapped["Structure"] = relationship(
         back_populates="roles",
-        cascade="all, delete",
     )
     superiors: Mapped[list["Relation"]] = relationship(
         foreign_keys="Relation.superior_id", back_populates="superior"
