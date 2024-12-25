@@ -5,6 +5,7 @@ class UserRead(schemas.BaseUser[int]):
     name: str
     last_name: str
     info: str
+    role_id: int | None
 
 
 class UserCreate(schemas.BaseUserCreate):
