@@ -44,6 +44,20 @@ class StructureAdapter(ModelAdapter):
 
         return await self.session.scalar(stmt)
 
+    async def read_structure_team(self, structure_id: int) -> list[Role]:
+        """Retrieves all roles of the structures
+
+        Args:
+            structure_id (int): Strucutre id
+
+        Returns:
+            list[Role]: List of roles
+        """
+
+        stmt = select(Role).where(Role.structure_id == structure_id)
+
+        return await self.session.scalars(stmt)
+
     async def create_structure_with_admin_role(
         self, structure_schema: StructureCreate, current_user_id: int
     ) -> SM:
