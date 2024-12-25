@@ -8,6 +8,7 @@ from users.schemas import UserRead
 
 from .adapters.role_adapter import RoleAdapter
 from .adapters.structure_adapter import StructureAdapter
+from .schemas.role import RoleOut
 from .schemas.structure import StructureCreate, StructureOut
 
 router = APIRouter(
@@ -30,6 +31,22 @@ async def get_my_strucure(
         )
 
     return db_structure
+
+
+@router.get("/team", response_model=list[RoleOut])
+async def get_my_team(
+    current_user: UserRead = Depends(current_user),
+    session: AsyncSession = Depends(db_connector.get_session),
+):
+    adapter = StructureAdapter(session)
+    db_structure = await adapter.read_user_structure(current_user.id)
+
+    if not db_structure:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Item not found"
+        )
+
+    return await adapter.read_structure_team(db_structure.id)
 
 
 @router.post("", response_model=StructureOut, status_code=status.HTTP_201_CREATED)
