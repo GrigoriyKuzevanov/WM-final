@@ -12,5 +12,9 @@ class StructureOut(StructureBase):
     id: int
 
 
+class StructureUpdate(StructureBase):
+    pass
+
+
 class StructureCreate(StructureBase):
     pass
