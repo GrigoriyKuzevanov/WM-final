@@ -85,3 +85,13 @@ class ModelAdapter:
         await self.session.refresh(item)
 
         return item
+
+    async def delete_item(self, item: BM) -> None:
+        """Deletes item from db.
+
+        Args:
+            item (BM): Object to delete
+        """
+
+        await self.session.delete(item)
+        await self.session.commit()
