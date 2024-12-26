@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 
 from core.config import settings
+from structures.roles_routes import router as roles_router
 from structures.structures_routes import router as structures_router
 from users.auth_routes import router as auth_router
 from users.users_routes import router as users_router
@@ -12,3 +13,4 @@ router = APIRouter(
 router.include_router(auth_router)
 router.include_router(users_router)
 router.include_router(structures_router)
+router.include_router(roles_router)
