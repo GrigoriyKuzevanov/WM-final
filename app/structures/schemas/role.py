@@ -2,7 +2,6 @@ from pydantic import BaseModel
 
 
 class RoleBase(BaseModel):
-    name: str
     info: str
 
     model_config = {"from_attributes": True}
@@ -10,8 +9,13 @@ class RoleBase(BaseModel):
 
 class RoleOut(RoleBase):
     id: int
+    name: str
     structure_id: int
+
+
+class RoleUpdate(RoleBase):
+    pass
 
 
 class RoleCreate(RoleBase):
-    structure_id: int
+    name: str
