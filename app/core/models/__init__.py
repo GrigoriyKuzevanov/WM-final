@@ -6,8 +6,13 @@ __all__ = (
     "Role",
     "Structure",
     "Relation",
+    "Meeting",
+    "meetings_users_association",
 )
 
+
+from meetings.models import Meeting
+from meetings.models import association_table as meetings_users_association
 
 from structures.models import (
     Relation,

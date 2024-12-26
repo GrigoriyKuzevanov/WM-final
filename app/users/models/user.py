@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING
 
 from fastapi_users_db_sqlalchemy import SQLAlchemyBaseUserTable, SQLAlchemyUserDatabase
+from meetings.models import association_table
 from sqlalchemy import ForeignKey, String
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -9,6 +10,8 @@ from starlette.requests import Request
 from core.models.base_model import Base
 
 if TYPE_CHECKING:
+    from meetings.models import Meeting
+
     from structures.models.role import Role
 
 
@@ -25,6 +28,13 @@ class User(Base, SQLAlchemyBaseUserTable[int]):
     )
 
     role: Mapped["Role"] = relationship(back_populates="users")
+    meetings: Mapped[list["Meeting"]] = relationship(
+        secondary=association_table, back_populates="users"
+    )
+    created_meetings: Mapped[list["Meeting"]] = relationship(
+        back_populates="creator",
+        cascade="all, delete",
+    )
 
     async def __admin_repr__(self, request: Request) -> str:
         """Model's representation in admin.
