@@ -32,14 +32,14 @@ class ApiPrefix(BaseModel):
 
         structures (str): Url prefix for structures routes. Defaults to "/structures"
 
-        teams (str): Url prefix for teams routes. Defaults to "/teams"
+        roles (str): Url prefix for roles routes. Defaults to "/roles"
     """
 
     api_prefix: str = "/api"
     users: str = "/users"
     auth: str = "/auth"
     structures: str = "/structures"
-    teams: str = "/teams"
+    roles: str = "/roles"
 
     @computed_field
     @property
