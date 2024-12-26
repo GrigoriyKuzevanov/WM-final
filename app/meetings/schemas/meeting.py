@@ -2,6 +2,8 @@ from datetime import datetime
 
 from pydantic import BaseModel
 
+from users.schemas import UserRead
+
 
 class MeetingBase(BaseModel):
     topic: str
@@ -22,3 +24,7 @@ class MeetingUpdate(MeetingBase):
 
 class MeetingCreate(MeetingBase):
     pass
+
+
+class MeetingOutUsers(MeetingOut):
+    users: list[UserRead]
