@@ -136,7 +136,7 @@ async def add_user(
 
 
 @router.get("/{meeting_id}/remove-user/{user_id}", response_model=MeetingOutUsers)
-async def add_user(
+async def reomve_user(
     meeting_id: int,
     user_id: int,
     current_user: UserRead = Depends(current_user),
@@ -171,3 +171,13 @@ async def add_user(
         )
 
     return await meeting_adapter.remove_user(meeting, user)
+
+
+@router.get("/my", response_model=list[MeetingOut])
+async def get_my_meetings(
+    current_user: UserRead = Depends(current_user),
+    session: AsyncSession = Depends(db_connector.get_session),
+):
+    meeting_adapter = MeetingAdapter(session)
+
+    return await meeting_adapter.read_by_user_id(current_user.id)
