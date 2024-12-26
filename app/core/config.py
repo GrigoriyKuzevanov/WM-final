@@ -35,6 +35,8 @@ class ApiPrefix(BaseModel):
         roles (str): Url prefix for roles routes. Defaults to "/roles"
 
         relations (str): Url prefix for relations routes. Defaults to "/relations"
+
+        meetings (str): Url prefix for meetings routes. Defaults to "/meetings"
     """
 
     api_prefix: str = "/api"
@@ -43,6 +45,7 @@ class ApiPrefix(BaseModel):
     structures: str = "/structures"
     roles: str = "/roles"
     relations: str = "/relations"
+    meetings: str = "/meetings"
 
     @computed_field
     @property
