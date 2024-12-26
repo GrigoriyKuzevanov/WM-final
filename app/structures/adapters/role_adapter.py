@@ -1,6 +1,8 @@
 from typing import TypeVar
 
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import joinedload
 
 from structures.models import Role
 from structures.schemas.role import RoleCreate
@@ -46,13 +48,13 @@ class RoleAdapter(ModelAdapter):
         return role
 
     async def add_user(self, user_id: int) -> RM:
-        """Bound user to the role.
+        """Bounds user to the role.
 
         Args:
             user_id (int): User id
 
         Returns:
-            Role: Updated role object
+            RM: Updated role object
         """
 
         user = await self.session.get(User, user_id)
@@ -62,3 +64,37 @@ class RoleAdapter(ModelAdapter):
         await self.session.refresh(self.model)
 
         return self.model
+
+    async def get_with_subordinates(self, role_id: int) -> RM:
+        """Gets Role with provided id with joined loaded suboridinates.
+
+        Args:
+            role_id (int): Role id
+
+        Returns:
+            RM: Role object
+        """
+
+        stmt = (
+            select(Role)
+            .options(joinedload(Role.subordinates))
+            .where(Role.id == role_id)
+        )
+
+        return await self.session.scalar(stmt)
+
+    async def get_with_superiors(self, role_id: int) -> RM:
+        """Gets Role with provided id with joined loaded get_with_superiors.
+
+        Args:
+            role_id (int): Role id
+
+        Returns:
+            RM: Role object
+        """
+
+        stmt = (
+            select(Role).options(joinedload(Role.superiors)).where(Role.id == role_id)
+        )
+
+        return await self.session.scalar(stmt)
