@@ -3,6 +3,7 @@ from typing import TypeVar
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from structures.models import Role
+from structures.schemas.role import RoleCreate
 from users.models import User
 
 from .model_adapter import ModelAdapter
@@ -21,6 +22,28 @@ class RoleAdapter(ModelAdapter):
         """
 
         super().__init__(Role, session)
+
+    async def create_role_and_bound_to_user(
+        self, role_create_schema: RoleCreate, user_to_bound: User, structure_id: int
+    ) -> RM:
+        """Creates new role and bounds created role to current user.
+
+        Args:
+            role_create_schema (RoleCreate): Pydantic schema to create role
+            current_user_id (int): Current user id to bound
+
+        Returns:
+            RM: Created role object
+        """
+
+        role = self.model(**role_create_schema.model_dump(), structure_id=structure_id)
+
+        role.users.append(user_to_bound)
+
+        self.session.add(role)
+        await self.session.commit()
+
+        return role
 
     async def add_user(self, user_id: int) -> RM:
         """Bound user to the role.
