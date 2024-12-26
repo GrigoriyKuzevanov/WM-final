@@ -3,10 +3,9 @@ from typing import TypeVar
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from core.model_adapter import ModelAdapter
 from structures.models import Relation
 from structures.schemas.realtion import RelationCreate
-
-from .model_adapter import ModelAdapter
 
 RNM = TypeVar("RNM", bound=Relation)
 

@@ -4,11 +4,10 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
+from core.model_adapter import ModelAdapter
 from structures.models import Role
 from structures.schemas.role import RoleCreate
 from users.models import User
-
-from .model_adapter import ModelAdapter
 
 RM = TypeVar("RM", bound=Role)
 

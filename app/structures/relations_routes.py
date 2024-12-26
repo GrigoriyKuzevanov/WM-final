@@ -6,12 +6,9 @@ from core.models import db_connector
 from users.dependencies.fastapi_users_routes import current_user
 from users.schemas import UserRead
 
-from .adapters.model_adapter import ModelAdapter
 from .adapters.relation_adapter import RelationAdapter
 from .adapters.role_adapter import RoleAdapter
-from .models import Relation
 from .schemas.realtion import RelationCreate, RelationOut
-from .schemas.role import RoleOut
 
 router = APIRouter(
     prefix=settings.prefix.relations,

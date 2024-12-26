@@ -2,12 +2,12 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.config import settings
+from core.model_adapter import ModelAdapter
 from core.models import db_connector
 from users.dependencies.fastapi_users_routes import current_user
 from users.models import User
 from users.schemas import UserRead
 
-from .adapters.model_adapter import ModelAdapter
 from .adapters.role_adapter import RoleAdapter
 from .schemas.role import RoleCreate, RoleOut, RoleUpdate
 

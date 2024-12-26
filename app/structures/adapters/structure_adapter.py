@@ -3,12 +3,11 @@ from typing import TypeVar
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from core.model_adapter import ModelAdapter
 from structures.models import Role, Structure
 from structures.schemas.role import RoleCreate
 from structures.schemas.structure import StructureCreate
 from users.models import User
-
-from .model_adapter import ModelAdapter
 
 SM = TypeVar("SM", bound=Structure)
 
