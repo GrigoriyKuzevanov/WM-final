@@ -55,7 +55,13 @@ async def create_structure(
     current_user: UserRead = Depends(current_user),
     session: AsyncSession = Depends(db_connector.get_session),
 ):
+    if current_user.role_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="You already have a role"
+        )
+
     adapter = StructureAdapter(session)
+
     created_structure = await adapter.create_structure_with_admin_role(
         structure_schema=structure_input_schema,
         current_user_id=current_user.id,
