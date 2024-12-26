@@ -98,3 +98,19 @@ class MeetingAdapter(ModelAdapter):
         await self.session.commit()
 
         return meeting
+
+    async def read_by_user_id(self, user_id: int) -> list[MM]:
+        """Gets user meetings by provided user id.
+
+        Args:
+            user_id (int): User id
+
+        Returns:
+            list[MM]: List of Meeting objects
+        """
+
+        stmt = select(User).options(joinedload(User.meetings)).where(User.id == user_id)
+
+        user = await self.session.scalar(stmt)
+
+        return user.meetings
