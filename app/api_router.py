@@ -1,4 +1,5 @@
 from fastapi import APIRouter
+from meetings.routes import router as meetings_router
 
 from core.config import settings
 from structures.relations_routes import router as relations_router
@@ -16,3 +17,4 @@ router.include_router(users_router)
 router.include_router(structures_router)
 router.include_router(roles_router)
 router.include_router(relations_router)
+router.include_router(meetings_router)
