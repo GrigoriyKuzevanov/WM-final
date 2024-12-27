@@ -1,8 +1,8 @@
 """create work_tasks table
 
-Revision ID: b91b3cf0cab6
+Revision ID: 44da0ef71fda
 Revises: 4304879e1f63
-Create Date: 2024-12-27 05:06:02.182910+00:00
+Create Date: 2024-12-27 11:56:28.543888+00:00
 
 """
 
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision: str = "b91b3cf0cab6"
+revision: str = "44da0ef71fda"
 down_revision: Union[str, None] = "4304879e1f63"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -25,17 +25,9 @@ def upgrade() -> None:
         sa.Column("name", sa.String(), nullable=False),
         sa.Column("description", sa.String(), nullable=False),
         sa.Column("comments", sa.String(), nullable=False),
-        sa.Column(
-            "status",
-            sa.Enum("CREATED", "IN_WORK", "COMPLETED", name="worktaskstatus"),
-            nullable=False,
-        ),
+        sa.Column("status", sa.String(length=34), nullable=False),
         sa.Column("complete_by", sa.DateTime(), nullable=False),
-        sa.Column(
-            "rate",
-            sa.Enum("ACCEPTABLE", "GOOD", "GREAT", name="worktaskrate"),
-            nullable=False,
-        ),
+        sa.Column("rate", sa.Integer(), nullable=False),
         sa.Column("creator_id", sa.Integer(), nullable=False),
         sa.Column("assignee_id", sa.Integer(), nullable=False),
         sa.Column(
