@@ -1,8 +1,7 @@
 import datetime
-from enum import Enum
 from typing import TYPE_CHECKING
 
-from sqlalchemy import ForeignKey
+from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from starlette.requests import Request
 
@@ -10,23 +9,6 @@ from core.models.base_model import Base
 
 if TYPE_CHECKING:
     from users.models import User
-
-
-class WorkTaskStatus(Enum):
-    """Enum class for work task statuses."""
-
-    CREATED = "created"
-    IN_WORK = "in_work"
-    COMPLETED = "completed"
-
-
-class WorkTaskRate(Enum):
-    """Enum class for work tasks rates."""
-
-    NOT_RATED = 0
-    ACCEPTABLE = 1
-    GOOD = 2
-    GREAT = 3
 
 
 class WorkTask(Base):
@@ -37,13 +19,9 @@ class WorkTask(Base):
     name: Mapped[str] = mapped_column(nullable=False)
     description: Mapped[str] = mapped_column(nullable=False)
     comments: Mapped[str]
-    status: Mapped[WorkTaskStatus] = mapped_column(
-        default=WorkTaskStatus.CREATED, nullable=False
-    )
+    status: Mapped[str] = mapped_column(String(34), nullable=False)
     complete_by: Mapped[datetime.datetime] = mapped_column(nullable=False)
-    rate: Mapped[WorkTaskRate] = mapped_column(
-        default=WorkTaskRate.NOT_RATED, nullable=False
-    )
+    rate: Mapped[int] = mapped_column(nullable=False)
     creator_id: Mapped[int] = mapped_column(
         ForeignKey("users.id", ondelete="CASCADE"), nullable=False
     )
@@ -60,7 +38,7 @@ class WorkTask(Base):
         """Model's representation in admin.
 
         Args:
-            request (_type_): Request instance
+            request (Request): Request instance
 
         Returns:
             str: Model's string representation
