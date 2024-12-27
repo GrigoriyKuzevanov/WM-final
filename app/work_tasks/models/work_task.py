@@ -23,6 +23,7 @@ class WorkTaskStatus(Enum):
 class WorkTaskRate(Enum):
     """Enum class for work tasks rates."""
 
+    NOT_RATED = 0
     ACCEPTABLE = 1
     GOOD = 2
     GREAT = 3
@@ -40,14 +41,20 @@ class WorkTask(Base):
         default=WorkTaskStatus.CREATED, nullable=False
     )
     complete_by: Mapped[datetime.datetime] = mapped_column(nullable=False)
-    rate: Mapped[WorkTaskRate]
+    rate: Mapped[WorkTaskRate] = mapped_column(
+        default=WorkTaskRate.NOT_RATED, nullable=False
+    )
     creator_id: Mapped[int] = mapped_column(
         ForeignKey("users.id", ondelete="CASCADE"), nullable=False
     )
     assignee_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
 
-    creator: Mapped["User"] = relationship(back_populates="created_work_tasks")
-    assignee: Mapped["User"] = relationship(back_populates="assigned_work_tasks")
+    creator: Mapped["User"] = relationship(
+        foreign_keys=[creator_id], back_populates="created_work_tasks"
+    )
+    assignee: Mapped["User"] = relationship(
+        foreign_keys=[assignee_id], back_populates="assigned_work_tasks"
+    )
 
     async def __admin_repr__(self, request: Request) -> str:
         """Model's representation in admin.
