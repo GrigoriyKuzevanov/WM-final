@@ -42,5 +42,20 @@ class RelationAdapter(ModelAdapter):
 
         self.session.add(relation)
         await self.session.commit()
+        await self.session.refresh(relation)
 
         return relation
+
+    async def get_relation_by_superior_id_and_suboridinate_id(
+        self,
+        superior_id: int,
+        subordinate_id: int,
+    ) -> RNM:
+        """Gets relation with provided superior and subordinate ids."""
+
+        stmt = select(Relation).where(
+            Relation.superior_id == superior_id,
+            Relation.subordinate_id == subordinate_id,
+        )
+
+        return await self.session.scalar(stmt)
