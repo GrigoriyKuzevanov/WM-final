@@ -8,11 +8,13 @@ __all__ = (
     "Relation",
     "Meeting",
     "meetings_users_association",
+    "WorkTask",
 )
 
 
 from meetings.models import Meeting
 from meetings.models import association_table as meetings_users_association
+from work_tasks.models import WorkTask
 
 from structures.models import (
     Relation,

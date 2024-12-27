@@ -11,12 +11,13 @@ from core.models.base_model import Base
 
 if TYPE_CHECKING:
     from meetings.models import Meeting
+    from work_tasks.models import WorkTask
 
     from structures.models.role import Role
 
 
 class User(Base, SQLAlchemyBaseUserTable[int]):
-    """A class for represtation users table in the database"""
+    """A class for represtation users table in the database."""
 
     __tablename__ = "users"
 
@@ -34,6 +35,13 @@ class User(Base, SQLAlchemyBaseUserTable[int]):
     created_meetings: Mapped[list["Meeting"]] = relationship(
         back_populates="creator",
         cascade="all, delete",
+    )
+    created_work_tasks: Mapped[list["WorkTask"]] = relationship(
+        back_populates="creator",
+        cascade="all, delete",
+    )
+    assigned_work_tasks: Mapped[list["WorkTask"]] = relationship(
+        back_populates="assignee"
     )
 
     async def __admin_repr__(self, request: Request) -> str:
