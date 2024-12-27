@@ -1,19 +1,18 @@
 from typing import TYPE_CHECKING
 
 from fastapi_users_db_sqlalchemy import SQLAlchemyBaseUserTable, SQLAlchemyUserDatabase
-from meetings.models import association_table
 from sqlalchemy import ForeignKey, String
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from starlette.requests import Request
 
 from core.models.base_model import Base
+from meetings.models import association_table
 
 if TYPE_CHECKING:
     from meetings.models import Meeting
-    from work_tasks.models import WorkTask
-
     from structures.models.role import Role
+    from work_tasks.models import WorkTask
 
 
 class User(Base, SQLAlchemyBaseUserTable[int]):
@@ -37,11 +36,12 @@ class User(Base, SQLAlchemyBaseUserTable[int]):
         cascade="all, delete",
     )
     created_work_tasks: Mapped[list["WorkTask"]] = relationship(
+        foreign_keys="WorkTask.creator_id",
         back_populates="creator",
         cascade="all, delete",
     )
     assigned_work_tasks: Mapped[list["WorkTask"]] = relationship(
-        back_populates="assignee"
+        foreign_keys="WorkTask.assignee_id", back_populates="assignee"
     )
 
     async def __admin_repr__(self, request: Request) -> str:
