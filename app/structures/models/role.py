@@ -27,10 +27,14 @@ class Role(Base):
         back_populates="roles",
     )
     superiors: Mapped[list["Relation"]] = relationship(
-        foreign_keys="Relation.superior_id", back_populates="superior"
+        foreign_keys="Relation.superior_id",
+        back_populates="superior",
+        cascade="all, delete",
     )
     subordinates: Mapped[list["Relation"]] = relationship(
-        foreign_keys="Relation.subordinate_id", back_populates="subordinate"
+        foreign_keys="Relation.subordinate_id",
+        back_populates="subordinate",
+        cascade="all, delete",
     )
 
     async def __admin_repr__(self, request: Request) -> str:
