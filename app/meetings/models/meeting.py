@@ -20,11 +20,13 @@ association_table = Table(
 
 
 class Meeting(Base):
+    """A class for represtation meetings table in the database."""
+
     __tablename__ = "meetings"
 
     topic: Mapped[str] = mapped_column(nullable=False)
     info: Mapped[str]
-    meet_datetime: Mapped[datetime.datetime]
+    meet_datetime: Mapped[datetime.datetime] = mapped_column(nullable=False)
     creator_id: Mapped[int] = mapped_column(
         ForeignKey("users.id", ondelete="CASCADE"), nullable=False
     )
