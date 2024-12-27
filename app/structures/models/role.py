@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 
 
 class Role(Base):
-    """A class for represtation roles table in the database"""
+    """A class for represtation roles table in the database."""
 
     __tablename__ = "roles"
 

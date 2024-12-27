@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 
 
 class Relation(Base):
-    """A class for represtation relations table in the database"""
+    """A class for represtation relations table in the database."""
 
     __tablename__ = "relations"
 

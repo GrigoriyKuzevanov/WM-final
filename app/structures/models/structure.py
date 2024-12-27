@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 
 
 class Structure(Base):
-    """A class for represtation structures table in the database"""
+    """A class for represtation structures table in the database."""
 
     __tablename__ = "structures"
 
