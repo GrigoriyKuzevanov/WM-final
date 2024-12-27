@@ -88,5 +88,6 @@ known-first-party = [
     "users",
     "structures",
     "meetings",
-    "work_tasks"
+    "work_tasks",
+    "utils"
 ]
