@@ -7,10 +7,10 @@ from core.models import User, db_connector
 from structures.adapters.role_adapter import RoleAdapter
 from users.dependencies.fastapi_users_routes import current_user
 from users.schemas import UserRead
+from utils.check_time import check_datetime_after_now
 
 from .adapters.meeting_adapter import MeetingAdapter
 from .schemas.meeting import MeetingCreate, MeetingOut, MeetingOutUsers, MeetingUpdate
-from .utils.check_time import check_datetime_after_now
 
 router = APIRouter(
     prefix=settings.prefix.meetings,
