@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.model_adapter import ModelAdapter
 from work_tasks.models import WorkTask
-from work_tasks.schemas import WorkTaskCreate, WorkTaskStatusEnum
+from work_tasks.schemas import WorkTaskCreate, WorkTaskStatusEnum, WorkTaskUpdateStatus
 
 WTM = TypeVar("WTM", bound=WorkTask)
 
@@ -48,3 +48,25 @@ class WorkTaskAdapter(ModelAdapter):
         await self.session.refresh(work_task)
 
         return work_task
+
+    async def update_status(
+        self, status_update_schema: WorkTaskUpdateStatus, task: WorkTask
+    ) -> WTM:
+        """Updates status of the work task using WorkTaskStatusEnum values.
+
+        Args:
+            status_update_schema (WorkTaskUpdateStatus): Pydantic schema with data to
+            update
+            task (WorkTask): WorkTask object
+
+        Returns:
+            WTM: WorkTask object
+        """
+
+        new_status: WorkTaskStatusEnum = status_update_schema.model_dump().get("status")
+        task.status = new_status.value
+
+        await self.session.commit()
+        await self.session.refresh(task)
+
+        return task
