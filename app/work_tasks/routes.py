@@ -12,7 +12,7 @@ from users.schemas import UserRead
 from utils.check_time import check_datetime_after_now
 
 from .adapters.work_task_adapter import WorkTaskAdapter
-from .schemas import WorkTaskCreate, WorkTaskOut, WorkTaskUpdate
+from .schemas import WorkTaskCreate, WorkTaskOut, WorkTaskUpdate, WorkTaskUpdateStatus
 
 router = APIRouter(
     prefix=settings.prefix.work_tasks,
@@ -96,3 +96,27 @@ async def update_task(
         )
 
     return await task_adapter.update_item(task_input_schema, task)
+
+
+@router.patch("/{task_id}", response_model=WorkTaskOut)
+async def update_task_status(
+    task_id: int,
+    task_input_schema: WorkTaskUpdateStatus,
+    current_user: UserRead = Depends(current_user),
+    session: AsyncSession = Depends(db_connector.get_session),
+):
+    task_adapter = WorkTaskAdapter(session)
+
+    task = await task_adapter.read_item_by_id(task_id)
+
+    if not task:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Task not found"
+        )
+
+    if current_user.id != task.assignee_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="You can't do this action"
+        )
+
+    return await task_adapter.update_status(task_input_schema, task)
