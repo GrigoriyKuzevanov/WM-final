@@ -22,7 +22,7 @@ from .schemas import (
 
 router = APIRouter(
     prefix=settings.prefix.work_tasks,
-    tags=["Meetings"],
+    tags=["Work Tasks"],
 )
 
 
@@ -150,3 +150,26 @@ async def update_task_rate(
         )
 
     return await task_adapter.update_item(task_input_schema, task)
+
+
+@router.delete("/{task_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_task(
+    task_id: int,
+    current_user: UserRead = Depends(current_user),
+    session: AsyncSession = Depends(db_connector.get_session),
+):
+    task_adapter = WorkTaskAdapter(session)
+
+    task = await task_adapter.read_item_by_id(task_id)
+
+    if not task:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Task not found"
+        )
+
+    if current_user.id != task.creator_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="You can't do this action"
+        )
+
+    await task_adapter.delete_item(task)
