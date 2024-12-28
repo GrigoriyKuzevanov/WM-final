@@ -31,5 +31,12 @@ class WorkTaskOut(WorkTaskBase):
 
 
 class WorkTaskUpdate(WorkTaskBase):
+    pass
+
+
+class WorkTaskUpdateStatus(WorkTaskBase):
     status: WorkTaskStatusEnum
+
+
+class WorkTaskUpdateRate(WorkTaskBase):
     rate: int = Field(..., gt=0, le=5)
