@@ -29,6 +29,13 @@ CONFIG__MAIN_DB__DB_HOST=localhost
 CONFIG__MAIN_DB__DB_PORT=5431
 CONFIG__MAIN_DB__DB_NAME=wm-db-name
 
+# Redis
+CONFIG__REDIS__USER=redis-user
+CONFIG__REDIS__PASSWORD=redis-user-password
+CONFIG__REDIS__HOST=localhost
+CONFIG__REDIS__PORT=6380
+CONFIG__REDIS__DB=0
+
 # Fastapi-users
 # access token secrets
 CONFIG__ACCESS_TOKEN__RESET_PASSWORD_TOKEN_SECRET=<your secret>
@@ -37,6 +44,14 @@ CONFIG__ACCESS_TOKEN__VERIFICATION_TOKEN_SECRET=<your secret>
 # superuser credentials
 CONFIG__SUPERUSER__EMAIL=<your admin email>
 CONFIG__SUPERUSER__PASSWORD=<your admin password>
+CONFIG__SUPERUSER__NAME=<your admin name>
+CONFIG__SUPERUSER__LAST_NAME=<your admin last name>
+CONFIG__SUPERUSER__INFO=<your admin info>
+
+# Starlette-admin
+# session middleware
+CONFIG__SESSION_MIDDLEWARE__SECRET_KEY=<your secret>
+
 ```
 - to generate secret you can use next command
 ```shell
