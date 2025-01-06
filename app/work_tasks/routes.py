@@ -182,12 +182,38 @@ async def get_my_rating(
 ):
     task_adapter = WorkTaskAdapter(session)
 
-    rating = await task_adapter.get_user_rating(assignee_id=current_user.id, days=30)
+    rating = await task_adapter.get_user_rating(assignee_id=current_user.id, days=90)
 
     if rating is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Completed tasks for this user for last month not found",
+        )
+
+    return {"rating": rating}
+
+
+@router.get("/rating/team")
+async def get_team_rating(
+    current_user: UserRead = Depends(current_user),
+    session: AsyncSession = Depends(db_connector.get_session),
+):
+    task_adapter = WorkTaskAdapter(session)
+    role_adapter = RoleAdapter(session)
+
+    current_user_role = await role_adapter.read_item_by_id(current_user.role_id)
+
+    if not current_user_role:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Not found role for this user"
+        )
+
+    rating = await task_adapter.get_team_rating(current_user_role.structure_id, days=90)
+
+    if rating is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Completed tasks for this user's team for last month not found",
         )
 
     return {"rating": rating}
