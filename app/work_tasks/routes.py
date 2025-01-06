@@ -173,3 +173,21 @@ async def delete_task(
         )
 
     await task_adapter.delete_item(task)
+
+
+@router.get("/rating/me")
+async def get_my_rating(
+    current_user: UserRead = Depends(current_user),
+    session: AsyncSession = Depends(db_connector.get_session),
+):
+    task_adapter = WorkTaskAdapter(session)
+
+    rating = await task_adapter.get_user_rating(assignee_id=current_user.id, days=30)
+
+    if rating is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Completed tasks for this user for last month not found",
+        )
+
+    return {"rating": rating}
