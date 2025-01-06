@@ -1,8 +1,12 @@
+import decimal
+from datetime import datetime, timedelta
 from typing import TypeVar
 
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.model_adapter import ModelAdapter
+from utils.get_date_days_ago import get_date_days_ago
 from work_tasks.models import WorkTask
 from work_tasks.schemas import WorkTaskCreate, WorkTaskStatusEnum, WorkTaskUpdateStatus
 
@@ -70,3 +74,24 @@ class WorkTaskAdapter(ModelAdapter):
         await self.session.refresh(task)
 
         return task
+
+    async def get_user_rating(
+        self, assignee_id: int, days: int
+    ) -> decimal.Decimal | None:
+        """Gets average user's task rate for provided number of days.
+
+        Args:
+            assignee_id (int): Assignee id for filter
+            days (int): Number of days
+
+        Returns:
+            decimal.Decimal | None: Average rating or None if no rates
+        """
+
+        stmt = select(func.avg(self.model.rate)).where(
+            self.model.assignee_id == assignee_id,
+            self.model.status == WorkTaskStatusEnum.COMPLETED.value,
+            self.model.complete_by >= get_date_days_ago(days=days),
+        )
+
+        return await self.session.scalar(stmt)
