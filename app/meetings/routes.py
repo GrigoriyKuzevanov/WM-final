@@ -12,6 +12,13 @@ from utils.check_time import check_datetime_after_now
 from utils.check_today import check_date_is_today
 
 from .adapters.meeting_adapter import MeetingAdapter
+from .exceptions import (
+    MeetingBeforeNow,
+    MeetingsNotFound,
+    NotMeetingCreator,
+    UserAlreadyAdded,
+    UserNotFoundInMeeting,
+)
 from .schemas.meeting import MeetingCreate, MeetingOut, MeetingOutUsers, MeetingUpdate
 
 router = APIRouter(
@@ -27,10 +34,7 @@ async def create_meeting(
     session: AsyncSession = Depends(db_connector.get_session),
 ):
     if not check_datetime_after_now(meeting_input_schema.meet_datetime):
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="You can't create meeting with datetime before now",
-        )
+        raise MeetingBeforeNow
 
     meeting_adapter = MeetingAdapter(session)
     role_adapter = RoleAdapter(session)
@@ -55,24 +59,16 @@ async def update_meeting(
     session: AsyncSession = Depends(db_connector.get_session),
 ):
     if not check_datetime_after_now(meeting_input_schema.meet_datetime):
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="You can't create meeting with datetime before now",
-        )
+        raise MeetingBeforeNow
 
     meeting_adapter = MeetingAdapter(session)
     meeting = await meeting_adapter.read_item_by_id(meeting_id)
 
     if not meeting:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Meeting not found"
-        )
+        raise MeetingsNotFound
 
     if not meeting.creator_id == current_user.id:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="YYou can't do this action",
-        )
+        raise NotMeetingCreator
 
     return await meeting_adapter.update_item(meeting_input_schema, meeting)
 
@@ -87,15 +83,10 @@ async def delete_meeting(
     meeting = await meeting_adapter.read_item_by_id(meeting_id)
 
     if not meeting:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Meeting not found"
-        )
+        raise MeetingsNotFound
 
     if not meeting.creator_id == current_user.id:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="You can't do this action",
-        )
+        raise NotMeetingCreator
 
     await meeting_adapter.delete_item(meeting)
 
@@ -112,15 +103,10 @@ async def add_user(
     meeting = await meeting_adapter.get_meeting_with_users(meeting_id)
 
     if not meeting:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Meeting not found"
-        )
+        raise MeetingsNotFound
 
     if not meeting.creator_id == current_user.id:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="You can't do this action",
-        )
+        raise NotMeetingCreator
 
     user = await user_adapter.read_item_by_id(user_id)
 
@@ -130,9 +116,7 @@ async def add_user(
         )
 
     if user in meeting.users:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail="User already added"
-        )
+        raise UserAlreadyAdded
 
     return await meeting_adapter.add_user(meeting, user)
 
@@ -149,15 +133,10 @@ async def remove_user(
     meeting = await meeting_adapter.get_meeting_with_users(meeting_id)
 
     if not meeting:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Meeting not found"
-        )
+        raise MeetingsNotFound
 
     if not meeting.creator_id == current_user.id:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="You can't do this action",
-        )
+        raise NotMeetingCreator
 
     user = await user_adapter.read_item_by_id(user_id)
 
@@ -167,10 +146,7 @@ async def remove_user(
         )
 
     if user not in meeting.users:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="User not found in meeting users",
-        )
+        raise UserNotFoundInMeeting
 
     return await meeting_adapter.remove_user(meeting, user)
 
