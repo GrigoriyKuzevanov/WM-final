@@ -8,6 +8,7 @@ from users.schemas import UserRead
 
 from .adapters.relation_adapter import RelationAdapter
 from .adapters.role_adapter import RoleAdapter
+from .exceptions.role import NotTeamAdministrator, RoleNotFound, RoleNotFoundForUser
 from .schemas.realtion import RelationCreate, RelationOut
 
 router = APIRouter(
@@ -28,21 +29,15 @@ async def create_relation(
     current_user_role = await role_adapter.read_item_by_id(current_user.role_id)
 
     if not current_user_role:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Not found role for this user"
-        )
+        raise RoleNotFoundForUser
 
     if not current_user_role.name == "Team administrator":
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail="You can't do this action"
-        )
+        raise NotTeamAdministrator
 
     if not await role_adapter.read_item_by_id(
         relation_input_schema.superior_id
-    ) and not await role_adapter.read_item_by_id(relation_input_schema.subordinate_id):
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Not found roles"
-        )
+    ) or not await role_adapter.read_item_by_id(relation_input_schema.subordinate_id):
+        raise RoleNotFound
 
     return await relation_adapter.create_realtion_with_users_structure_id(
         relation_input_schema, current_user_role.structure_id
@@ -59,9 +54,7 @@ async def get_me_subordinate(
     current_user_role = await role_adapter.get_with_subordinates(current_user.role_id)
 
     if not current_user_role:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Not found role for this user"
-        )
+        raise RoleNotFoundForUser
 
     return current_user_role.subordinates
 
@@ -76,8 +69,6 @@ async def get_me_superior(
     current_user_role = await role_adapter.get_with_superiors(current_user.role_id)
 
     if not current_user_role:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Not found role for this user"
-        )
+        raise RoleNotFoundForUser
 
     return current_user_role.superiors
