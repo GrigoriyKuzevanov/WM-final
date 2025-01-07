@@ -15,13 +15,13 @@ TasksNotFound = HTTPException(
 )
 
 
-NotCreator = HTTPException(
+NotTaskCreator = HTTPException(
     status_code=status.HTTP_403_FORBIDDEN,
     detail="Can't do this action. You're not creator of the task",
 )
 
 
-NotAssignee = HTTPException(
+NotTaskAssignee = HTTPException(
     status_code=status.HTTP_403_FORBIDDEN,
     detail="Can't do this action. You're not assignee of the task",
 )
