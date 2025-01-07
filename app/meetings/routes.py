@@ -5,6 +5,7 @@ from core.config import settings
 from core.model_adapter import ModelAdapter
 from core.models import User, db_connector
 from structures.adapters.role_adapter import RoleAdapter
+from structures.exceptions.role import RoleNotFoundForUser
 from users.dependencies.fastapi_users_routes import current_user
 from users.schemas import UserRead
 from utils.check_after_now import check_after_now
@@ -42,9 +43,7 @@ async def create_meeting(
     current_user_role = await role_adapter.read_item_by_id(current_user.role_id)
 
     if not current_user_role:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Not found role for this user"
-        )
+        raise RoleNotFoundForUser
 
     return await meeting_adapter.create_meeting_by_user(
         current_user.id, meeting_input_schema

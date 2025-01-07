@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.config import settings
@@ -9,6 +9,12 @@ from users.models import User
 from users.schemas import UserRead
 
 from .adapters.role_adapter import RoleAdapter
+from .exceptions.role import (
+    DeleteOtherTeamRole,
+    DeleteYourselfRole,
+    NotTeamAdministrator,
+    RoleNotFoundForUser,
+)
 from .schemas.role import RoleCreate, RoleOut, RoleUpdate
 
 router = APIRouter(
@@ -25,9 +31,7 @@ async def get_my_role(
     adapter = RoleAdapter(session)
 
     if not current_user.role_id:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Not found role for this user"
-        )
+        raise RoleNotFoundForUser
 
     return await adapter.read_item_by_id(current_user.role_id)
 
@@ -45,14 +49,10 @@ async def create_role(
     current_user_role = await role_adapter.read_item_by_id(current_user.role_id)
 
     if not current_user_role:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Not found role for this user"
-        )
+        raise RoleNotFoundForUser
 
     if not current_user_role.name == "Team administrator":
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail="You can't do this action"
-        )
+        raise NotTeamAdministrator
 
     user = await user_adapter.read_item_by_id(user_id)
 
@@ -74,9 +74,7 @@ async def update_my_role(
     current_user_role = await role_adapter.read_item_by_id(current_user.role_id)
 
     if not current_user_role:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Not found role for this user"
-        )
+        raise RoleNotFoundForUser
 
     return await role_adapter.update_item(role_input_schema, current_user_role)
 
@@ -88,35 +86,24 @@ async def delete_role(
     session: AsyncSession = Depends(db_connector.get_session),
 ):
     if current_user.role_id == role_id:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail="You can't delete yourself"
-        )
+        raise DeleteYourselfRole
 
     adapter = RoleAdapter(session)
 
     current_user_role = await adapter.read_item_by_id(current_user.role_id)
 
     if not current_user_role:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Not found role for this user"
-        )
+        raise RoleNotFoundForUser
 
     if not current_user_role.name == "Team administrator":
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail="You can't do this action"
-        )
+        raise NotTeamAdministrator
 
     role_to_delete = await adapter.read_item_by_id(role_id)
 
     if not role_to_delete:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Not found role for this user"
-        )
+        raise RoleNotFoundForUser
 
     if not current_user_role.structure_id == role_to_delete.structure_id:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="You can't delete role from other team",
-        )
+        raise DeleteOtherTeamRole
 
     await adapter.delete_item(role_to_delete)

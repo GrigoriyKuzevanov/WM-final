@@ -6,6 +6,7 @@ from core.model_adapter import ModelAdapter
 from core.models import db_connector
 from structures.adapters.relation_adapter import RelationAdapter
 from structures.adapters.role_adapter import RoleAdapter
+from structures.exceptions.role import RoleNotFoundForUser
 from users.dependencies.fastapi_users_routes import current_user
 from users.models import User
 from users.schemas import UserRead
@@ -50,17 +51,13 @@ async def create_task(
     current_user_role = await role_adapter.read_item_by_id(current_user.role_id)
 
     if not current_user_role:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Not found role for this user"
-        )
+        raise RoleNotFoundForUser
 
     assignee_user = await user_adapter.read_item_by_id(task_input_schema.assignee_id)
     assignee_user_role = await role_adapter.read_item_by_id(assignee_user.role_id)
 
     if not assignee_user_role:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Role not found"
-        )
+        raise RoleNotFoundForUser
 
     relation = await relation_adapter.get_relation_by_superior_id_and_suboridinate_id(
         superior_id=current_user_role.id,
@@ -183,9 +180,7 @@ async def get_team_rating(
     current_user_role = await role_adapter.read_item_by_id(current_user.role_id)
 
     if not current_user_role:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Not found role for this user"
-        )
+        raise RoleNotFoundForUser
 
     rating = await task_adapter.get_team_rating(current_user_role.structure_id, days=90)
 
