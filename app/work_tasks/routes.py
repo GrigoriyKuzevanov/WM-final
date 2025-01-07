@@ -12,6 +12,13 @@ from users.schemas import UserRead
 from utils.check_time import check_datetime_after_now
 
 from .adapters.work_task_adapter import WorkTaskAdapter
+from .exceptions import (
+    NotAssignee,
+    NotCreator,
+    TaskBeforeNow,
+    TaskForThisUser,
+    TasksNotFound,
+)
 from .schemas import (
     WorkTaskCreate,
     WorkTaskOut,
@@ -33,10 +40,7 @@ async def create_task(
     session: AsyncSession = Depends(db_connector.get_session),
 ):
     if not check_datetime_after_now(task_input_schema.complete_by):
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="You can't create meeting with datetime before now",
-        )
+        raise TaskBeforeNow
 
     task_adapter = WorkTaskAdapter(session)
     role_adapter = RoleAdapter(session)
@@ -64,10 +68,7 @@ async def create_task(
     )
 
     if not relation:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="You can't create task for this user",
-        )
+        raise TaskForThisUser
 
     return await task_adapter.create_task_and_bound_user(
         task_input_schema, current_user.id
@@ -82,24 +83,17 @@ async def update_task(
     session: AsyncSession = Depends(db_connector.get_session),
 ):
     if not check_datetime_after_now(task_input_schema.complete_by):
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="You can't update meeting with datetime before now",
-        )
+        raise TaskBeforeNow
 
     task_adapter = WorkTaskAdapter(session)
 
     task = await task_adapter.read_item_by_id(task_id)
 
     if not task:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Task not found"
-        )
+        raise TasksNotFound
 
     if current_user.id != task.creator_id:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail="You can't do this action"
-        )
+        raise NotCreator
 
     return await task_adapter.update_item(task_input_schema, task)
 
@@ -116,14 +110,10 @@ async def update_task_status(
     task = await task_adapter.read_item_by_id(task_id)
 
     if not task:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Task not found"
-        )
+        raise TasksNotFound
 
     if current_user.id != task.assignee_id:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail="You can't do this action"
-        )
+        raise NotAssignee
 
     return await task_adapter.update_status(task_input_schema, task)
 
@@ -140,14 +130,10 @@ async def update_task_rate(
     task = await task_adapter.read_item_by_id(task_id)
 
     if not task:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Task not found"
-        )
+        raise TasksNotFound
 
     if current_user.id != task.creator_id:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail="You can't do this action"
-        )
+        raise NotCreator
 
     return await task_adapter.update_item(task_input_schema, task)
 
@@ -163,14 +149,10 @@ async def delete_task(
     task = await task_adapter.read_item_by_id(task_id)
 
     if not task:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Task not found"
-        )
+        raise TasksNotFound
 
     if current_user.id != task.creator_id:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail="You can't do this action"
-        )
+        raise NotCreator
 
     await task_adapter.delete_item(task)
 
@@ -185,10 +167,7 @@ async def get_my_rating(
     rating = await task_adapter.get_user_rating(assignee_id=current_user.id, days=90)
 
     if rating is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Completed tasks for this user for last month not found",
-        )
+        raise TasksNotFound
 
     return {"rating": rating}
 
@@ -211,9 +190,6 @@ async def get_team_rating(
     rating = await task_adapter.get_team_rating(current_user_role.structure_id, days=90)
 
     if rating is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Completed tasks for this user's team for last month not found",
-        )
+        raise TasksNotFound
 
     return {"rating": rating}
