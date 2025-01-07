@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.config import settings
@@ -7,6 +7,7 @@ from core.models import User, db_connector
 from structures.adapters.role_adapter import RoleAdapter
 from structures.exceptions.role import RoleNotFoundForUser
 from users.dependencies.fastapi_users_routes import current_user
+from users.exceptions import UserNotFound
 from users.schemas import UserRead
 from utils.check_after_now import check_after_now
 from utils.check_time import check_datetime_after_now
@@ -110,9 +111,7 @@ async def add_user(
     user = await user_adapter.read_item_by_id(user_id)
 
     if not user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
-        )
+        raise UserNotFound
 
     if user in meeting.users:
         raise UserAlreadyAdded
@@ -140,9 +139,7 @@ async def remove_user(
     user = await user_adapter.read_item_by_id(user_id)
 
     if not user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
-        )
+        raise UserNotFound
 
     if user not in meeting.users:
         raise UserNotFoundInMeeting
