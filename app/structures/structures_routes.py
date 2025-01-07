@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.config import settings
@@ -8,6 +8,8 @@ from users.schemas import UserRead
 
 from .adapters.role_adapter import RoleAdapter
 from .adapters.structure_adapter import StructureAdapter
+from .exceptions.role import AlreadyHaveRole, NotTeamAdministrator, RoleNotFoundForUser
+from .exceptions.structure import StructureNotFound
 from .schemas.role import RoleOut
 from .schemas.structure import StructureCreate, StructureOut
 
@@ -26,9 +28,7 @@ async def get_my_strucure(
     db_structure = await adapter.read_user_structure(current_user.id)
 
     if not db_structure:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Item not found"
-        )
+        raise StructureNotFound
 
     return db_structure
 
@@ -42,9 +42,7 @@ async def get_my_team(
     db_structure = await adapter.read_user_structure(current_user.id)
 
     if not db_structure:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Item not found"
-        )
+        raise StructureNotFound
 
     return await adapter.read_structure_team(db_structure.id)
 
@@ -56,9 +54,7 @@ async def create_structure(
     session: AsyncSession = Depends(db_connector.get_session),
 ):
     if current_user.role_id:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail="You already have a role"
-        )
+        raise AlreadyHaveRole
 
     adapter = StructureAdapter(session)
 
@@ -82,14 +78,10 @@ async def update_my_structure(
     current_user_role = await role_adapter.read_item_by_id(current_user.role_id)
 
     if not current_user_role:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Not found role for this user"
-        )
+        raise RoleNotFoundForUser
 
     if not current_user_role.name == "Team administrator":
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail="You can't do this action"
-        )
+        raise NotTeamAdministrator
 
     db_structure = await structure_adapter.read_item_by_id(
         current_user_role.structure_id
