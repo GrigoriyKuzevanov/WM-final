@@ -13,8 +13,8 @@ from utils.check_time import check_datetime_after_now
 
 from .adapters.work_task_adapter import WorkTaskAdapter
 from .exceptions import (
-    NotAssignee,
-    NotCreator,
+    NotTaskAssignee,
+    NotTaskCreator,
     TaskBeforeNow,
     TaskForThisUser,
     TasksNotFound,
@@ -93,7 +93,7 @@ async def update_task(
         raise TasksNotFound
 
     if current_user.id != task.creator_id:
-        raise NotCreator
+        raise NotTaskCreator
 
     return await task_adapter.update_item(task_input_schema, task)
 
@@ -113,7 +113,7 @@ async def update_task_status(
         raise TasksNotFound
 
     if current_user.id != task.assignee_id:
-        raise NotAssignee
+        raise NotTaskAssignee
 
     return await task_adapter.update_status(task_input_schema, task)
 
@@ -133,7 +133,7 @@ async def update_task_rate(
         raise TasksNotFound
 
     if current_user.id != task.creator_id:
-        raise NotCreator
+        raise NotTaskCreator
 
     return await task_adapter.update_item(task_input_schema, task)
 
@@ -152,7 +152,7 @@ async def delete_task(
         raise TasksNotFound
 
     if current_user.id != task.creator_id:
-        raise NotCreator
+        raise NotTaskCreator
 
     await task_adapter.delete_item(task)
 
