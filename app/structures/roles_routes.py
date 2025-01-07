@@ -9,6 +9,7 @@ from users.models import User
 from users.schemas import UserRead
 
 from .adapters.role_adapter import RoleAdapter
+from .dependencies.role import current_user_role
 from .exceptions.role import (
     DeleteOtherTeamRole,
     DeleteYourselfRole,
@@ -40,16 +41,11 @@ async def get_my_role(
 async def create_role(
     user_id: int,
     role_input_schema: RoleCreate,
-    current_user: UserRead = Depends(current_user),
+    current_user_role: RoleOut = Depends(current_user_role),
     session: AsyncSession = Depends(db_connector.get_session),
 ):
     role_adapter = RoleAdapter(session)
     user_adapter = ModelAdapter(User, session)
-
-    current_user_role = await role_adapter.read_item_by_id(current_user.role_id)
-
-    if not current_user_role:
-        raise RoleNotFoundForUser
 
     if not current_user_role.name == "Team administrator":
         raise NotTeamAdministrator
@@ -66,15 +62,10 @@ async def create_role(
 @router.put("/my", response_model=RoleOut)
 async def update_my_role(
     role_input_schema: RoleUpdate,
-    current_user: UserRead = Depends(current_user),
+    current_user_role: RoleOut = Depends(current_user_role),
     session: AsyncSession = Depends(db_connector.get_session),
 ):
     role_adapter = RoleAdapter(session)
-
-    current_user_role = await role_adapter.read_item_by_id(current_user.role_id)
-
-    if not current_user_role:
-        raise RoleNotFoundForUser
 
     return await role_adapter.update_item(role_input_schema, current_user_role)
 
@@ -82,18 +73,13 @@ async def update_my_role(
 @router.delete("/{role_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_role(
     role_id: int,
-    current_user: UserRead = Depends(current_user),
+    current_user_role: RoleOut = Depends(current_user_role),
     session: AsyncSession = Depends(db_connector.get_session),
 ):
-    if current_user.role_id == role_id:
+    if current_user_role.id == role_id:
         raise DeleteYourselfRole
 
     adapter = RoleAdapter(session)
-
-    current_user_role = await adapter.read_item_by_id(current_user.role_id)
-
-    if not current_user_role:
-        raise RoleNotFoundForUser
 
     if not current_user_role.name == "Team administrator":
         raise NotTeamAdministrator

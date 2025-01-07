@@ -6,7 +6,9 @@ from core.model_adapter import ModelAdapter
 from core.models import db_connector
 from structures.adapters.relation_adapter import RelationAdapter
 from structures.adapters.role_adapter import RoleAdapter
+from structures.dependencies.role import current_user_role
 from structures.exceptions.role import RoleNotFoundForUser
+from structures.schemas.role import RoleOut
 from users.dependencies.fastapi_users_routes import current_user
 from users.models import User
 from users.schemas import UserRead
@@ -38,6 +40,7 @@ router = APIRouter(
 async def create_task(
     task_input_schema: WorkTaskCreate,
     current_user: UserRead = Depends(current_user),
+    current_user_role: RoleOut = Depends(current_user_role),
     session: AsyncSession = Depends(db_connector.get_session),
 ):
     if not check_datetime_after_now(task_input_schema.complete_by):
@@ -47,11 +50,6 @@ async def create_task(
     role_adapter = RoleAdapter(session)
     user_adapter = ModelAdapter(User, session)
     relation_adapter = RelationAdapter(session)
-
-    current_user_role = await role_adapter.read_item_by_id(current_user.role_id)
-
-    if not current_user_role:
-        raise RoleNotFoundForUser
 
     assignee_user = await user_adapter.read_item_by_id(task_input_schema.assignee_id)
     assignee_user_role = await role_adapter.read_item_by_id(assignee_user.role_id)
@@ -171,16 +169,10 @@ async def get_my_rating(
 
 @router.get("/rating/team")
 async def get_team_rating(
-    current_user: UserRead = Depends(current_user),
+    current_user_role: RoleOut = Depends(current_user_role),
     session: AsyncSession = Depends(db_connector.get_session),
 ):
     task_adapter = WorkTaskAdapter(session)
-    role_adapter = RoleAdapter(session)
-
-    current_user_role = await role_adapter.read_item_by_id(current_user.role_id)
-
-    if not current_user_role:
-        raise RoleNotFoundForUser
 
     rating = await task_adapter.get_team_rating(current_user_role.structure_id, days=90)
 

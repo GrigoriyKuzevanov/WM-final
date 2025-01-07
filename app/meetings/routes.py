@@ -4,8 +4,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from core.config import settings
 from core.model_adapter import ModelAdapter
 from core.models import User, db_connector
-from structures.adapters.role_adapter import RoleAdapter
+from structures.dependencies.role import current_user_role
 from structures.exceptions.role import RoleNotFoundForUser
+from structures.schemas.role import RoleOut
 from users.dependencies.fastapi_users_routes import current_user
 from users.exceptions import UserNotFound
 from users.schemas import UserRead
@@ -33,15 +34,13 @@ router = APIRouter(
 async def create_meeting(
     meeting_input_schema: MeetingCreate,
     current_user: UserRead = Depends(current_user),
+    current_user_role: RoleOut = Depends(current_user_role),
     session: AsyncSession = Depends(db_connector.get_session),
 ):
     if not check_datetime_after_now(meeting_input_schema.meet_datetime):
         raise MeetingBeforeNow
 
     meeting_adapter = MeetingAdapter(session)
-    role_adapter = RoleAdapter(session)
-
-    current_user_role = await role_adapter.read_item_by_id(current_user.role_id)
 
     if not current_user_role:
         raise RoleNotFoundForUser
