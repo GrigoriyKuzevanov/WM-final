@@ -62,6 +62,26 @@ class RoleService:
 
         return role.subordinates
 
+    async def get_role_superiors(self, role_id: int) -> list[Role]:
+        """Retrieves role's superiors.
+
+        Args:
+            role_id (int): Id of the role
+
+        Raises:
+            RoleNotFound: Http exception
+
+        Returns:
+            list[Role]: List of superiors roles
+        """
+
+        role = await self.roles_adapter.get_with_superiors(role_id)
+
+        if not role:
+            raise RoleNotFound
+
+        return role.superiors
+
     async def create_role(
         self,
         current_user_role: RoleOut,
