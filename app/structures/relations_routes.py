@@ -38,6 +38,19 @@ async def create_relation(
     )
 
 
+@router.delete("/{relation_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_relation(
+    relation_id: int,
+    current_user_team_admin: RoleOut = Depends(current_user_team_admin),
+    session: AsyncSession = Depends(db_connector.get_session),
+):
+    relations_adapter = RelationAdapter(session)
+
+    relations_service = RelationService(relations_adapter)
+
+    await relations_service.delete_relation(relation_id)
+
+
 @router.get("/me-subordinate", response_model=list[RelationOut])
 async def get_me_subordinate(
     current_user: UserRead = Depends(current_user),
