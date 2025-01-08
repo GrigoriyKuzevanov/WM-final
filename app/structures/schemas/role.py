@@ -19,3 +19,7 @@ class RoleUpdate(RoleBase):
 
 class RoleCreate(RoleBase):
     name: str
+
+
+class RoleCreateWithStructure(RoleCreate):
+    structure_id: int
