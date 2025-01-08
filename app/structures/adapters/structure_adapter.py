@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.model_adapter import ModelAdapter
 from structures.models import Role, Structure
-from structures.schemas.role import RoleCreate
+from structures.schemas.role import RoleCreateWithStructure
 from structures.schemas.structure import StructureCreate
 from users.models import User
 
@@ -77,7 +77,7 @@ class StructureAdapter(ModelAdapter):
         self.session.add(structure)
         await self.session.flush()
 
-        role_create_schema = RoleCreate(
+        role_create_schema = RoleCreateWithStructure(
             name="Team administrator",
             info="Creator of the structure",
             structure_id=structure.id,
