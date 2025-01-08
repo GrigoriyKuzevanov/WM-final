@@ -88,8 +88,6 @@ class StructureAdapter(ModelAdapter):
         role.users.append(user)
 
         self.session.add(role)
-        # await self.session.flush()
-
         await self.session.commit()
 
         return structure
