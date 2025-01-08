@@ -8,7 +8,7 @@ from users.schemas import UserRead
 
 from .adapters.relation_adapter import RelationAdapter
 from .adapters.role_adapter import RoleAdapter
-from .dependencies.role import current_user_role, current_user_team_admin
+from .dependencies.role import current_user_team_admin
 from .schemas.realtion import RelationCreate, RelationOut
 from .schemas.role import RoleOut
 from .services.relation import RelationService
