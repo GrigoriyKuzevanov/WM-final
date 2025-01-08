@@ -7,7 +7,7 @@ from core.models import db_connector
 from users.models import User
 
 from .adapters.role_adapter import RoleAdapter
-from .dependencies.role import current_user_role
+from .dependencies.role import current_user_role, current_user_team_admin
 from .models.role import Role
 from .schemas.role import RoleCreate, RoleOut, RoleUpdate
 from .services.role import RoleService
@@ -27,7 +27,7 @@ async def get_my_role(current_user_role: RoleOut = Depends(current_user_role)):
 async def create_role(
     user_id: int,
     role_input_schema: RoleCreate,
-    current_user_role: RoleOut = Depends(current_user_role),
+    current_user_team_admin: RoleOut = Depends(current_user_team_admin),
     session: AsyncSession = Depends(db_connector.get_session),
 ):
     roles_adapter = RoleAdapter(session)
@@ -36,7 +36,7 @@ async def create_role(
     role_service = RoleService(roles_adapter)
 
     return await role_service.create_role(
-        current_user_role=current_user_role,
+        current_user_role=current_user_team_admin,
         role_create_schema=role_input_schema,
         user_id=user_id,
         user_adapter=user_adapter,
@@ -61,11 +61,13 @@ async def update_my_role(
 @router.delete("/{role_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_role(
     role_id: int,
-    current_user_role: RoleOut = Depends(current_user_role),
+    current_user_team_admin: RoleOut = Depends(current_user_team_admin),
     session: AsyncSession = Depends(db_connector.get_session),
 ):
     roles_adapter = RoleAdapter(session)
 
     role_service = RoleService(roles_adapter)
 
-    await role_service.delete_role(role_id=role_id, current_user_role=current_user_role)
+    await role_service.delete_role(
+        role_id=role_id, current_user_role=current_user_team_admin
+    )
