@@ -11,7 +11,8 @@ from .dependencies.role import current_user_team_admin
 from .exceptions.role import AlreadyHaveRole
 from .exceptions.structure import StructureNotFound
 from .schemas.role import RoleOut
-from .schemas.structure import StructureCreate, StructureOut
+from .schemas.structure import StructureCreate, StructureOut, StructureUpdate
+from .services.structure import StructureService
 
 router = APIRouter(
     prefix=settings.prefix.structures,
@@ -24,13 +25,11 @@ async def get_my_strucure(
     current_user: UserRead = Depends(current_user),
     session: AsyncSession = Depends(db_connector.get_session),
 ):
-    adapter = StructureAdapter(session)
-    db_structure = await adapter.read_user_structure(current_user.id)
+    structures_adapter = StructureAdapter(session)
 
-    if not db_structure:
-        raise StructureNotFound
+    structures_service = StructureService(structures_adapter)
 
-    return db_structure
+    return await structures_service.get_user_structure(current_user.id)
 
 
 @router.get("/team", response_model=list[RoleOut])
@@ -38,13 +37,11 @@ async def get_my_team(
     current_user: UserRead = Depends(current_user),
     session: AsyncSession = Depends(db_connector.get_session),
 ):
-    adapter = StructureAdapter(session)
-    db_structure = await adapter.read_user_structure(current_user.id)
+    structures_adapter = StructureAdapter(session)
 
-    if not db_structure:
-        raise StructureNotFound
+    structures_service = StructureService(structures_adapter)
 
-    return await adapter.read_structure_team(db_structure.id)
+    return await structures_service.get_user_team(current_user.id)
 
 
 @router.post("", response_model=StructureOut, status_code=status.HTTP_201_CREATED)
@@ -53,29 +50,27 @@ async def create_structure(
     current_user: UserRead = Depends(current_user),
     session: AsyncSession = Depends(db_connector.get_session),
 ):
-    if current_user.role_id:
-        raise AlreadyHaveRole
+    structures_adapter = StructureAdapter(session)
 
-    adapter = StructureAdapter(session)
+    structures_service = StructureService(structures_adapter)
 
-    created_structure = await adapter.create_structure_with_admin_role(
-        structure_schema=structure_input_schema,
-        current_user_id=current_user.id,
+    return await structures_service.create_structure(
+        structure_create_schema=structure_input_schema,
+        team_admin=current_user,
     )
-
-    return created_structure
 
 
 @router.put("/my", response_model=StructureOut)
 async def update_my_structure(
-    structure: StructureCreate,
+    structure_input_schema: StructureUpdate,
     current_user_team_admin: RoleOut = Depends(current_user_team_admin),
     session: AsyncSession = Depends(db_connector.get_session),
 ):
-    structure_adapter = StructureAdapter(session)
+    structures_adapter = StructureAdapter(session)
 
-    db_structure = await structure_adapter.read_item_by_id(
-        current_user_team_admin.structure_id
+    structures_service = StructureService(structures_adapter)
+
+    return await structures_service.update_structure(
+        structure_update_schema=structure_input_schema,
+        structure_id=current_user_team_admin.structure_id,
     )
-
-    return await structure_adapter.update_item(structure, db_structure)
