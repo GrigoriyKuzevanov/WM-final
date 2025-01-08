@@ -3,7 +3,6 @@ from structures.adapters.role_adapter import RoleAdapter
 from structures.exceptions.role import (
     DeleteOtherTeamRole,
     DeleteYourselfRole,
-    NotTeamAdministrator,
     RoleNotFound,
     RoleNotFoundForUser,
 )
@@ -22,20 +21,6 @@ class RoleService:
         """
 
         self.roles_adapter = roles_adapter
-        self.team_admin_name = "Team administrator"
-
-    def team_administrator_or_raise(self, role_name: str) -> None:
-        """Check if role is admin and raise Http exception if not.
-
-        Args:
-            role_name (str): Role.name
-
-        Raises:
-            NotTeamAdministrator: Http exception
-        """
-
-        if not role_name == self.team_admin_name:
-            raise NotTeamAdministrator
 
     async def get_role_by_id(self, role_id: int) -> Role:
         """Retrieves role by id.
@@ -77,8 +62,6 @@ class RoleService:
             Role: Created role model
         """
 
-        self.team_administrator_or_raise(current_user_role.name)
-
         user = await user_adapter.read_item_by_id(user_id)
 
         return await self.roles_adapter.create_role_and_bound_to_user(
@@ -116,8 +99,6 @@ class RoleService:
             RoleNotFoundForUser: If role to delete not found
             DeleteOtherTeamRole: If try to delete role of not current user's structure
         """
-
-        self.team_administrator_or_raise(current_user_role.name)
 
         if current_user_role.id == role_id:
             raise DeleteYourselfRole
