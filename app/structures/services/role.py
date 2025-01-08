@@ -26,7 +26,7 @@ class RoleService:
         """Retrieves role by id.
 
         Args:
-            role_id (int): It of the role
+            role_id (int): Id of the role
 
         Raises:
             RoleNotFound: Http exception
@@ -41,6 +41,26 @@ class RoleService:
             raise RoleNotFound
 
         return role
+
+    async def get_role_subordinates(self, role_id: int) -> list[Role]:
+        """Retrieves role's subordinates.
+
+        Args:
+            role_id (int): Id of the role
+
+        Raises:
+            RoleNotFound: Http exception
+
+        Returns:
+            list[Role]: List of subordinates roles
+        """
+
+        role = await self.roles_adapter.get_with_subordinates(role_id)
+
+        if not role:
+            raise RoleNotFound
+
+        return role.subordinates
 
     async def create_role(
         self,
