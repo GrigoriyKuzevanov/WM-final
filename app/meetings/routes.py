@@ -5,24 +5,12 @@ from core.config import settings
 from core.model_adapter import ModelAdapter
 from core.models import User, db_connector
 from structures.dependencies.role import current_user_role
-from structures.exceptions.role import RoleNotFoundForUser
-from structures.schemas.role import RoleOut
 from users.dependencies.fastapi_users_routes import current_user
-from users.exceptions import UserNotFound
 from users.schemas import UserRead
-from utils.check_after_now import check_after_now
-from utils.check_time import check_datetime_after_now
-from utils.check_today import check_date_is_today
 
 from .adapters.meeting_adapter import MeetingAdapter
-from .exceptions import (
-    MeetingBeforeNow,
-    MeetingsNotFound,
-    NotMeetingCreator,
-    UserAlreadyAdded,
-    UserNotFoundInMeeting,
-)
 from .schemas.meeting import MeetingCreate, MeetingOut, MeetingOutUsers, MeetingUpdate
+from .service import MeetingService
 
 router = APIRouter(
     prefix=settings.prefix.meetings,
@@ -30,23 +18,24 @@ router = APIRouter(
 )
 
 
-@router.post("", response_model=MeetingOut, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "",
+    response_model=MeetingOut,
+    status_code=status.HTTP_201_CREATED,
+    dependencies=[Depends(current_user_role)],
+)
 async def create_meeting(
     meeting_input_schema: MeetingCreate,
     current_user: UserRead = Depends(current_user),
-    current_user_role: RoleOut = Depends(current_user_role),
     session: AsyncSession = Depends(db_connector.get_session),
 ):
-    if not check_datetime_after_now(meeting_input_schema.meet_datetime):
-        raise MeetingBeforeNow
+    meetings_adapter = MeetingAdapter(session)
 
-    meeting_adapter = MeetingAdapter(session)
+    meetings_service = MeetingService(meetings_adapter)
 
-    if not current_user_role:
-        raise RoleNotFoundForUser
-
-    return await meeting_adapter.create_meeting_by_user(
-        current_user.id, meeting_input_schema
+    return await meetings_service.create_meeting(
+        creator_id=current_user.id,
+        meeting_create_schema=meeting_input_schema,
     )
 
 
@@ -57,19 +46,15 @@ async def update_meeting(
     current_user: UserRead = Depends(current_user),
     session: AsyncSession = Depends(db_connector.get_session),
 ):
-    if not check_datetime_after_now(meeting_input_schema.meet_datetime):
-        raise MeetingBeforeNow
+    meetings_adapter = MeetingAdapter(session)
 
-    meeting_adapter = MeetingAdapter(session)
-    meeting = await meeting_adapter.read_item_by_id(meeting_id)
+    meetings_service = MeetingService(meetings_adapter)
 
-    if not meeting:
-        raise MeetingsNotFound
-
-    if not meeting.creator_id == current_user.id:
-        raise NotMeetingCreator
-
-    return await meeting_adapter.update_item(meeting_input_schema, meeting)
+    return await meetings_service.update_meeting(
+        meeting_id=meeting_id,
+        user_id=current_user.id,
+        meeting_update_schema=meeting_input_schema,
+    )
 
 
 @router.delete("/{meeting_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -78,16 +63,11 @@ async def delete_meeting(
     current_user: UserRead = Depends(current_user),
     session: AsyncSession = Depends(db_connector.get_session),
 ):
-    meeting_adapter = MeetingAdapter(session)
-    meeting = await meeting_adapter.read_item_by_id(meeting_id)
+    meetings_adapter = MeetingAdapter(session)
 
-    if not meeting:
-        raise MeetingsNotFound
+    meetings_service = MeetingService(meetings_adapter)
 
-    if not meeting.creator_id == current_user.id:
-        raise NotMeetingCreator
-
-    await meeting_adapter.delete_item(meeting)
+    await meetings_service.delete_meeting(meeting_id, current_user.id)
 
 
 @router.get("/{meeting_id}/add-user/{user_id}", response_model=MeetingOutUsers)
@@ -97,25 +77,17 @@ async def add_user(
     current_user: UserRead = Depends(current_user),
     session: AsyncSession = Depends(db_connector.get_session),
 ):
-    meeting_adapter = MeetingAdapter(session)
-    user_adapter = ModelAdapter(User, session)
-    meeting = await meeting_adapter.get_meeting_with_users(meeting_id)
+    meetings_adapter = MeetingAdapter(session)
+    users_adapter = ModelAdapter(User, session)
 
-    if not meeting:
-        raise MeetingsNotFound
+    meetings_service = MeetingService(meetings_adapter)
 
-    if not meeting.creator_id == current_user.id:
-        raise NotMeetingCreator
-
-    user = await user_adapter.read_item_by_id(user_id)
-
-    if not user:
-        raise UserNotFound
-
-    if user in meeting.users:
-        raise UserAlreadyAdded
-
-    return await meeting_adapter.add_user(meeting, user)
+    return await meetings_service.add_user(
+        meeting_id=meeting_id,
+        user_to_add_id=user_id,
+        creator_id=current_user.id,
+        users_adapter=users_adapter,
+    )
 
 
 @router.get("/{meeting_id}/remove-user/{user_id}", response_model=MeetingOutUsers)
@@ -125,25 +97,17 @@ async def remove_user(
     current_user: UserRead = Depends(current_user),
     session: AsyncSession = Depends(db_connector.get_session),
 ):
-    meeting_adapter = MeetingAdapter(session)
-    user_adapter = ModelAdapter(User, session)
-    meeting = await meeting_adapter.get_meeting_with_users(meeting_id)
+    meetings_adapter = MeetingAdapter(session)
+    users_adapter = ModelAdapter(User, session)
 
-    if not meeting:
-        raise MeetingsNotFound
+    meetings_service = MeetingService(meetings_adapter)
 
-    if not meeting.creator_id == current_user.id:
-        raise NotMeetingCreator
-
-    user = await user_adapter.read_item_by_id(user_id)
-
-    if not user:
-        raise UserNotFound
-
-    if user not in meeting.users:
-        raise UserNotFoundInMeeting
-
-    return await meeting_adapter.remove_user(meeting, user)
+    return await meetings_service.remove_user(
+        meeting_id=meeting_id,
+        user_to_remove_id=user_id,
+        creator_id=current_user.id,
+        users_adapter=users_adapter,
+    )
 
 
 @router.get("/my", response_model=list[MeetingOut])
@@ -152,18 +116,10 @@ async def get_my_meetings(
     current_user: UserRead = Depends(current_user),
     session: AsyncSession = Depends(db_connector.get_session),
 ):
-    meeting_adapter = MeetingAdapter(session)
-    meetings = await meeting_adapter.read_by_user_id(current_user.id)
+    meetings_adapter = MeetingAdapter(session)
 
-    if today:
-        meetings = [
-            meeting
-            for meeting in meetings
-            if check_date_is_today(meeting.meet_datetime)
-        ]
-    else:
-        meetings = [
-            meeting for meeting in meetings if check_after_now(meeting.meet_datetime)
-        ]
+    meetings_service = MeetingService(meetings_adapter)
 
-    return meetings
+    return await meetings_service.get_user_meetings(
+        user_id=current_user.id, today=today
+    )
