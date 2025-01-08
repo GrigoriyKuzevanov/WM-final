@@ -7,8 +7,8 @@ from users.dependencies.fastapi_users_routes import current_user
 from users.schemas import UserRead
 
 from .adapters.structure_adapter import StructureAdapter
-from .dependencies.role import current_user_role
-from .exceptions.role import AlreadyHaveRole, NotTeamAdministrator
+from .dependencies.role import current_user_team_admin
+from .exceptions.role import AlreadyHaveRole
 from .exceptions.structure import StructureNotFound
 from .schemas.role import RoleOut
 from .schemas.structure import StructureCreate, StructureOut
@@ -69,16 +69,13 @@ async def create_structure(
 @router.put("/my", response_model=StructureOut)
 async def update_my_structure(
     structure: StructureCreate,
-    current_user_role: RoleOut = Depends(current_user_role),
+    current_user_team_admin: RoleOut = Depends(current_user_team_admin),
     session: AsyncSession = Depends(db_connector.get_session),
 ):
     structure_adapter = StructureAdapter(session)
 
-    if not current_user_role.name == "Team administrator":
-        raise NotTeamAdministrator
-
     db_structure = await structure_adapter.read_item_by_id(
-        current_user_role.structure_id
+        current_user_team_admin.structure_id
     )
 
     return await structure_adapter.update_item(structure, db_structure)

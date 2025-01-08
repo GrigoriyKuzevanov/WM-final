@@ -8,8 +8,8 @@ from users.schemas import UserRead
 
 from .adapters.relation_adapter import RelationAdapter
 from .adapters.role_adapter import RoleAdapter
-from .dependencies.role import current_user_role
-from .exceptions.role import NotTeamAdministrator, RoleNotFound, RoleNotFoundForUser
+from .dependencies.role import current_user_role, current_user_team_admin
+from .exceptions.role import RoleNotFound, RoleNotFoundForUser
 from .schemas.realtion import RelationCreate, RelationOut
 from .schemas.role import RoleOut
 
@@ -22,14 +22,11 @@ router = APIRouter(
 @router.post("/", response_model=RelationOut, status_code=status.HTTP_201_CREATED)
 async def create_relation(
     relation_input_schema: RelationCreate,
-    current_user_role: RoleOut = Depends(current_user_role),
+    current_user_team_admin: RoleOut = Depends(current_user_team_admin),
     session: AsyncSession = Depends(db_connector.get_session),
 ):
     role_adapter = RoleAdapter(session)
     relation_adapter = RelationAdapter(session)
-
-    if not current_user_role.name == "Team administrator":
-        raise NotTeamAdministrator
 
     if not await role_adapter.read_item_by_id(
         relation_input_schema.superior_id
@@ -37,14 +34,13 @@ async def create_relation(
         raise RoleNotFound
 
     return await relation_adapter.create_realtion_with_users_structure_id(
-        relation_input_schema, current_user_role.structure_id
+        relation_input_schema, current_user_team_admin.structure_id
     )
 
 
 @router.get("/me-subordinate", response_model=list[RelationOut])
 async def get_me_subordinate(
     current_user: UserRead = Depends(current_user),
-    current_user_role: RoleOut = Depends(current_user_role),
     session: AsyncSession = Depends(db_connector.get_session),
 ):
     role_adapter = RoleAdapter(session)
