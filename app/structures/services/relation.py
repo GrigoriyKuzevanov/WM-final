@@ -13,7 +13,7 @@ class RelationService:
         """Inits RelationService.
 
         Args:
-            relations_adapter (RoleAdapter): Adapter to interacting with database
+            relations_adapter (RelationAdapter): Adapter to interacting with database
         """
 
         self.relations_adapter = relations_adapter
