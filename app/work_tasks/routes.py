@@ -7,21 +7,12 @@ from core.models import db_connector
 from structures.adapters.relation_adapter import RelationAdapter
 from structures.adapters.role_adapter import RoleAdapter
 from structures.dependencies.role import current_user_role
-from structures.exceptions.role import RoleNotFoundForUser
 from structures.schemas.role import RoleOut
 from users.dependencies.fastapi_users_routes import current_user
 from users.models import User
 from users.schemas import UserRead
-from utils.check_time import check_datetime_after_now
 
 from .adapters.work_task_adapter import WorkTaskAdapter
-from .exceptions import (
-    NotTaskAssignee,
-    NotTaskCreator,
-    TaskBeforeNow,
-    TaskForThisUser,
-    TasksNotFound,
-)
 from .schemas import (
     WorkTaskCreate,
     WorkTaskOut,
@@ -29,6 +20,7 @@ from .schemas import (
     WorkTaskUpdateRate,
     WorkTaskUpdateStatus,
 )
+from .service import WorkTaskService
 
 router = APIRouter(
     prefix=settings.prefix.work_tasks,
@@ -43,30 +35,20 @@ async def create_task(
     current_user_role: RoleOut = Depends(current_user_role),
     session: AsyncSession = Depends(db_connector.get_session),
 ):
-    if not check_datetime_after_now(task_input_schema.complete_by):
-        raise TaskBeforeNow
+    tasks_adapter = WorkTaskAdapter(session)
+    roles_adapter = RoleAdapter(session)
+    users_adapter = ModelAdapter(User, session)
+    relations_adapter = RelationAdapter(session)
 
-    task_adapter = WorkTaskAdapter(session)
-    role_adapter = RoleAdapter(session)
-    user_adapter = ModelAdapter(User, session)
-    relation_adapter = RelationAdapter(session)
+    tasks_service = WorkTaskService(tasks_adapter)
 
-    assignee_user = await user_adapter.read_item_by_id(task_input_schema.assignee_id)
-    assignee_user_role = await role_adapter.read_item_by_id(assignee_user.role_id)
-
-    if not assignee_user_role:
-        raise RoleNotFoundForUser
-
-    relation = await relation_adapter.get_relation_by_superior_id_and_suboridinate_id(
-        superior_id=current_user_role.id,
-        subordinate_id=assignee_user_role.id,
-    )
-
-    if not relation:
-        raise TaskForThisUser
-
-    return await task_adapter.create_task_and_bound_user(
-        task_input_schema, current_user.id
+    return await tasks_service.create_task(
+        user_id=current_user.id,
+        user_role_id=current_user_role.id,
+        task_create_schema=task_input_schema,
+        users_adapter=users_adapter,
+        roles_adapter=roles_adapter,
+        relations_adapter=relations_adapter,
     )
 
 
@@ -77,20 +59,15 @@ async def update_task(
     current_user: UserRead = Depends(current_user),
     session: AsyncSession = Depends(db_connector.get_session),
 ):
-    if not check_datetime_after_now(task_input_schema.complete_by):
-        raise TaskBeforeNow
+    tasks_adapter = WorkTaskAdapter(session)
 
-    task_adapter = WorkTaskAdapter(session)
+    tasks_service = WorkTaskService(tasks_adapter)
 
-    task = await task_adapter.read_item_by_id(task_id)
-
-    if not task:
-        raise TasksNotFound
-
-    if current_user.id != task.creator_id:
-        raise NotTaskCreator
-
-    return await task_adapter.update_item(task_input_schema, task)
+    return await tasks_service.update_task(
+        task_id=task_id,
+        user_id=current_user.id,
+        task_update_schema=task_input_schema,
+    )
 
 
 @router.patch("/{task_id}/status", response_model=WorkTaskOut)
@@ -100,17 +77,15 @@ async def update_task_status(
     current_user: UserRead = Depends(current_user),
     session: AsyncSession = Depends(db_connector.get_session),
 ):
-    task_adapter = WorkTaskAdapter(session)
+    tasks_adapter = WorkTaskAdapter(session)
 
-    task = await task_adapter.read_item_by_id(task_id)
+    tasks_service = WorkTaskService(tasks_adapter)
 
-    if not task:
-        raise TasksNotFound
-
-    if current_user.id != task.assignee_id:
-        raise NotTaskAssignee
-
-    return await task_adapter.update_status(task_input_schema, task)
+    return await tasks_service.update_task_status(
+        task_id=task_id,
+        user_id=current_user.id,
+        task_update_schema=task_input_schema,
+    )
 
 
 @router.patch("/{task_id}/rate", response_model=WorkTaskOut)
@@ -120,17 +95,15 @@ async def update_task_rate(
     current_user: UserRead = Depends(current_user),
     session: AsyncSession = Depends(db_connector.get_session),
 ):
-    task_adapter = WorkTaskAdapter(session)
+    tasks_adapter = WorkTaskAdapter(session)
 
-    task = await task_adapter.read_item_by_id(task_id)
+    tasks_service = WorkTaskService(tasks_adapter)
 
-    if not task:
-        raise TasksNotFound
-
-    if current_user.id != task.creator_id:
-        raise NotTaskCreator
-
-    return await task_adapter.update_item(task_input_schema, task)
+    return await tasks_service.update_task_rate(
+        task_id=task_id,
+        user_id=current_user.id,
+        task_update_schema=task_input_schema,
+    )
 
 
 @router.delete("/{task_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -139,17 +112,11 @@ async def delete_task(
     current_user: UserRead = Depends(current_user),
     session: AsyncSession = Depends(db_connector.get_session),
 ):
-    task_adapter = WorkTaskAdapter(session)
+    tasks_adapter = WorkTaskAdapter(session)
 
-    task = await task_adapter.read_item_by_id(task_id)
+    tasks_service = WorkTaskService(tasks_adapter)
 
-    if not task:
-        raise TasksNotFound
-
-    if current_user.id != task.creator_id:
-        raise NotTaskCreator
-
-    await task_adapter.delete_item(task)
+    await tasks_service.delete_task(task_id=task_id, user_id=current_user.id)
 
 
 @router.get("/rating/me")
@@ -157,14 +124,11 @@ async def get_my_rating(
     current_user: UserRead = Depends(current_user),
     session: AsyncSession = Depends(db_connector.get_session),
 ):
-    task_adapter = WorkTaskAdapter(session)
+    tasks_adapter = WorkTaskAdapter(session)
 
-    rating = await task_adapter.get_user_rating(assignee_id=current_user.id, days=90)
+    tasks_service = WorkTaskService(tasks_adapter)
 
-    if rating is None:
-        raise TasksNotFound
-
-    return {"rating": rating}
+    return await tasks_service.get_user_rating(user_id=current_user.id)
 
 
 @router.get("/rating/team")
@@ -172,11 +136,10 @@ async def get_team_rating(
     current_user_role: RoleOut = Depends(current_user_role),
     session: AsyncSession = Depends(db_connector.get_session),
 ):
-    task_adapter = WorkTaskAdapter(session)
+    tasks_adapter = WorkTaskAdapter(session)
 
-    rating = await task_adapter.get_team_rating(current_user_role.structure_id, days=90)
+    tasks_service = WorkTaskService(tasks_adapter)
 
-    if rating is None:
-        raise TasksNotFound
-
-    return {"rating": rating}
+    return await tasks_service.get_team_rating(
+        structure_id=current_user_role.structure_id
+    )
