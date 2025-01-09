@@ -23,7 +23,7 @@ router = APIRouter(
     response_model=RoleOut,
     summary="Get a user's role",
     description="""
-    Retrieve a role of the current user. Requires authorization.
+    Retrieves a role of the current user. Requires authorization.
 
     Requirements:
     - The current user must have a role
