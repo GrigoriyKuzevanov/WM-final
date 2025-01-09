@@ -28,7 +28,22 @@ router = APIRouter(
 )
 
 
-@router.post("", response_model=WorkTaskOut, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "",
+    response_model=WorkTaskOut,
+    status_code=status.HTTP_201_CREATED,
+    summary="Create a new work task",
+    description="""
+    Creates a new work task using the provided schema. Requires authorization, the
+    authenticated user registers as the work task's creator.
+
+    Requirements:
+    - The creator must have a role
+    - The assignee user must exist
+    - The assignee user must be a subordinate of the creator
+    - The "complete_by" datetime for the work task must be in the future
+    """,
+)
 async def create_task(
     task_input_schema: WorkTaskCreate,
     current_user: UserRead = Depends(current_user),
@@ -52,7 +67,22 @@ async def create_task(
     )
 
 
-@router.put("/{task_id}", response_model=WorkTaskOut)
+@router.put(
+    "/{task_id}",
+    response_model=WorkTaskOut,
+    summary="Update a work task",
+    description="""
+    Updates an existing work task. Requires authorization.
+
+    Parameters:
+    - task_id: The id of the work task to update
+
+    Requirements:
+    - A work task with provided id must exist
+    - The current user must be creator of the work task
+    - The "complete_by" datetime for the work task must be in the future
+    """,
+)
 async def update_task(
     task_id: int,
     task_input_schema: WorkTaskUpdate,
@@ -70,7 +100,21 @@ async def update_task(
     )
 
 
-@router.patch("/{task_id}/status", response_model=WorkTaskOut)
+@router.patch(
+    "/{task_id}/status",
+    response_model=WorkTaskOut,
+    summary="Update a work task's status",
+    description="""
+    Updates status of the work task with provided id. Requires authorization.
+
+    Parameters:
+    - task_id: The id of the work task to update
+
+    Requirements:
+    - A work task with provided id must exist
+    - The current user must be assignee of the work task
+    """,
+)
 async def update_task_status(
     task_id: int,
     task_input_schema: WorkTaskUpdateStatus,
@@ -88,7 +132,21 @@ async def update_task_status(
     )
 
 
-@router.patch("/{task_id}/rate", response_model=WorkTaskOut)
+@router.patch(
+    "/{task_id}/rate",
+    response_model=WorkTaskOut,
+    summary="Update a work task's rate",
+    description="""
+    Updates a rate of the work task with provided id. Requires authorization.
+
+    Parameters:
+    - task_id: The id of the work task to update
+
+    Requirements:
+    - A work task with provided id must exist
+    - The current user must be creator of the work task
+    """,
+)
 async def update_task_rate(
     task_id: int,
     task_input_schema: WorkTaskUpdateRate,
@@ -106,7 +164,21 @@ async def update_task_rate(
     )
 
 
-@router.delete("/{task_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    "/{task_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Delete a work task",
+    description="""
+    Deletes a work task with provided id. Requires authorization.
+
+    Parameters:
+    - task_id: The id of the work task to delete
+
+    Requirements:
+    - A work task with provided id must exist
+    - The current user must be creator of the work task
+    """,
+)
 async def delete_task(
     task_id: int,
     current_user: UserRead = Depends(current_user),
@@ -119,7 +191,17 @@ async def delete_task(
     await tasks_service.delete_task(task_id=task_id, user_id=current_user.id)
 
 
-@router.get("/rating/me")
+@router.get(
+    "/rating/me",
+    summary="Get user's work tasks rating",
+    description="""
+    Retrieves an average rate of the completed work tasks of the current user. Requires
+    authorization.
+
+    Requirements:
+    - The current user must have at least one completed work task for past 90 days.
+    """,
+)
 async def get_my_rating(
     current_user: UserRead = Depends(current_user),
     session: AsyncSession = Depends(db_connector.get_session),
@@ -131,7 +213,18 @@ async def get_my_rating(
     return await tasks_service.get_user_rating(user_id=current_user.id)
 
 
-@router.get("/rating/team")
+@router.get(
+    "/rating/team",
+    summary="Get team's work tasks rating",
+    description="""
+    Retrieves an average rate of the completed work tasks of the current user's team.
+    Requires authorization.
+
+    Requirements:
+    - The current user must have an associated role (be a member of existing structure)
+    - The team members must have at least one completed work task for past 90 days.
+    """,
+)
 async def get_team_rating(
     current_user_role: RoleOut = Depends(current_user_role),
     session: AsyncSession = Depends(db_connector.get_session),
