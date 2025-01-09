@@ -1,6 +1,10 @@
 from structures.adapters.relation_adapter import RelationAdapter
 from structures.adapters.role_adapter import RoleAdapter
-from structures.exceptions.relation import RelationAlreadyExists, RelationNotFound
+from structures.exceptions.relation import (
+    RelationAlreadyExists,
+    RelationForNotYourStructure,
+    RelationNotFound,
+)
 from structures.exceptions.role import RoleNotFound
 from structures.models import Relation
 from structures.schemas.realtion import RelationCreate
@@ -38,13 +42,21 @@ class RelationService:
         Returns:
             Relation: Created relation model
         """
-
-        if not await roles_adapter.read_item_by_id(
+        superior_role = await roles_adapter.read_item_by_id(
             relation_create_schema.superior_id
-        ) or not await roles_adapter.read_item_by_id(
+        )
+        subordinate_role = await roles_adapter.read_item_by_id(
             relation_create_schema.subordinate_id
-        ):
+        )
+
+        if not superior_role or not subordinate_role:
             raise RoleNotFound
+
+        if (
+            superior_role.structure_id != structure_id
+            or subordinate_role.structure_id != structure_id
+        ):
+            raise RelationForNotYourStructure
 
         if await self.relations_adapter.get_relation_by_superior_id_and_suboridinate_id(
             superior_id=relation_create_schema.superior_id,
@@ -56,16 +68,20 @@ class RelationService:
             relation_create_schema, structure_id
         )
 
-    async def delete_relation(self, relation_id: int) -> None:
+    async def delete_relation(self, relation_id: int, structure_id: int) -> None:
         """Deletes relation by provided id.
 
         Args:
             relation_id (int): Relation id
+            structure_id (int): Structure id
         """
 
         relation_to_delete = await self.relations_adapter.read_item_by_id(relation_id)
 
         if not relation_to_delete:
             raise RelationNotFound
+
+        if not relation_to_delete.structure_id == structure_id:
+            raise RelationForNotYourStructure
 
         await self.relations_adapter.delete_item(relation_to_delete)
