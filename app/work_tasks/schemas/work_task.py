@@ -15,13 +15,12 @@ class WorkTaskBase(BaseModel):
     description: str
     comments: str
     complete_by: datetime
-    assignee_id: int
 
     model_config = {"from_attributes": True}
 
 
 class WorkTaskCreate(WorkTaskBase):
-    pass
+    assignee_id: int
 
 
 class WorkTaskOut(WorkTaskBase):
@@ -29,6 +28,7 @@ class WorkTaskOut(WorkTaskBase):
     rate: int
     status: str
     creator_id: int
+    assignee_id: int
 
 
 class WorkTaskUpdate(WorkTaskBase):
