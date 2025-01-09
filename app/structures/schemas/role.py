@@ -1,15 +1,15 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class RoleBase(BaseModel):
-    info: str
+    info: str = Field(..., example="Sales manager middle")
 
     model_config = {"from_attributes": True}
 
 
 class RoleOut(RoleBase):
     id: int
-    name: str
+    name: str = Field(..., example="Manager")
     structure_id: int
 
 
