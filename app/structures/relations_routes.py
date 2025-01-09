@@ -20,7 +20,22 @@ router = APIRouter(
 )
 
 
-@router.post("/", response_model=RelationOut, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/",
+    response_model=RelationOut,
+    status_code=status.HTTP_201_CREATED,
+    summary="Create a new relation",
+    description="""
+    Creates a new relation using the provided schema. Requires authorization.
+
+    Requirements:
+    - The current user must be a team administrator
+    - The superior role and the subordinate role must exist
+    - The superior role, the subordinate role and the current user role must belong to
+    the same structure
+    - The relation must be unique
+    """,
+)
 async def create_relation(
     relation_input_schema: RelationCreate,
     current_user_team_admin: RoleOut = Depends(current_user_team_admin),
@@ -38,7 +53,21 @@ async def create_relation(
     )
 
 
-@router.delete("/{relation_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    "/{relation_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Delete a relation",
+    description="""
+    Deletes a relation with provided id. Requires authorization.
+
+    Parameters:
+    - relation_id: The id of the relation to delete
+
+    Requirements:
+    - A relation with provided id must exist
+    - The current user must be the relation's team administrator
+    """,
+)
 async def delete_relation(
     relation_id: int,
     current_user_team_admin: RoleOut = Depends(current_user_team_admin),
@@ -48,10 +77,23 @@ async def delete_relation(
 
     relations_service = RelationService(relations_adapter)
 
-    await relations_service.delete_relation(relation_id)
+    await relations_service.delete_relation(
+        relation_id, current_user_team_admin.structure_id
+    )
 
 
-@router.get("/me-subordinate", response_model=list[RelationOut])
+@router.get(
+    "/me-subordinate",
+    response_model=list[RelationOut],
+    summary="Get relations where current user is subordinate",
+    description="""
+    Retrieves all relations where the current user role is subordinate. Requires
+    authorization.
+
+    Requirements:
+    - The current user must have a role
+    """,
+)
 async def get_me_subordinate(
     current_user: UserRead = Depends(current_user),
     session: AsyncSession = Depends(db_connector.get_session),
@@ -63,7 +105,18 @@ async def get_me_subordinate(
     return await roles_service.get_role_subordinates(current_user.role_id)
 
 
-@router.get("/me-superior", response_model=list[RelationOut])
+@router.get(
+    "/me-superior",
+    response_model=list[RelationOut],
+    summary="Get relations where current user is superior",
+    description="""
+    Retrieves all relations where the current user role is superior. Requires
+    authorization.
+
+    Requirements:
+    - The current user must have a role
+    """,
+)
 async def get_me_superior(
     current_user: UserRead = Depends(current_user),
     session: AsyncSession = Depends(db_connector.get_session),
