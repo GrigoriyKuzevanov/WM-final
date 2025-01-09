@@ -50,6 +50,9 @@ class StructureService:
 
         structure = await self.get_user_structure(user_id)
 
+        if not structure:
+            raise StructureNotFound
+
         return await self.structures_adapter.read_structure_team(structure.id)
 
     async def create_structure(
