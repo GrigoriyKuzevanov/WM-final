@@ -8,6 +8,7 @@ from structures.exceptions.role import (
 )
 from structures.models import Role
 from structures.schemas.role import RoleCreate, RoleOut, RoleUpdate
+from users.exceptions import UserNotFound
 
 
 class RoleService:
@@ -103,6 +104,9 @@ class RoleService:
         """
 
         user = await user_adapter.read_item_by_id(user_id)
+
+        if not user:
+            raise UserNotFound
 
         return await self.roles_adapter.create_role_and_bound_to_user(
             role_create_schema=role_create_schema,
