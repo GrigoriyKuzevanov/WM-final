@@ -18,7 +18,7 @@ class RoleUpdate(RoleBase):
 
 
 class RoleCreate(RoleBase):
-    name: str
+    name: str = Field(..., example="Manager")
 
 
 class RoleCreateWithStructure(RoleCreate):
