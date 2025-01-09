@@ -11,10 +11,10 @@ class WorkTaskStatusEnum(Enum):
 
 
 class WorkTaskBase(BaseModel):
-    name: str
-    description: str
-    comments: str
-    complete_by: datetime
+    name: str = Field(..., example="Prepare report")
+    description: str = Field(..., example="Prepare a very important work report")
+    comments: str = Field(..., example="Report must include all the work details")
+    complete_by: datetime = Field(..., example="2025-02-10T08:30:00")
 
     model_config = {"from_attributes": True}
 
@@ -25,8 +25,8 @@ class WorkTaskCreate(WorkTaskBase):
 
 class WorkTaskOut(WorkTaskBase):
     id: int
-    rate: int
-    status: str
+    rate: int = Field(..., ge=0, le=5)
+    status: WorkTaskStatusEnum
     creator_id: int
     assignee_id: int
 
@@ -40,4 +40,4 @@ class WorkTaskUpdateStatus(BaseModel):
 
 
 class WorkTaskUpdateRate(BaseModel):
-    rate: int = Field(..., gt=0, le=5)
+    rate: int = Field(..., ge=0, le=5)
