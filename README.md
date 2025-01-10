@@ -3,11 +3,10 @@
 ## Installation
 Clone this repo and get into it:
 ```shell
-git clone https://github.com/GrigoriyKuzevanov/WM-final.git
-cd WM-final
+git clone https://github.com/GrigoriyKuzevanov/WM-final.git && cd WM-final
 ```
 
-Use poetry to create virtual environment and install requirements:
+Use Poetry to create virtual environment and install dependencies:
 ```shell
 poetry install
 ```
@@ -15,12 +14,16 @@ poetry install
 
 
 ## Configuration
-Into project directory create an `.env-compose` file for running database with docker compose:
+
+Into the project directory create an `.env-compose` file for running database with docker compose:
+
 ```shell
 touch .env-compose
 ```
-- .env-compose file for variables using in docker-compose.yml
-```shell
+
+Add the following variables with values to the `.env-compose` file:
+
+```env
 # main-db
 DB_USER=wm-user
 DB_PASSWORD=wm-password
@@ -32,13 +35,15 @@ REDIS_USER=redis-user
 REDIS_USER_PASSWORD=redis-user-password
 ```
 
-Into app directory create `.env` file with application configuration:
+Into the app directory create `.env` file with application configuration:
+
 ```shell
 touch ./app/.env
 ```
 
-- .env file for variables using for project settings
-```shell
+Add the following variables with values to the `.env file:
+
+```env
 # Run application
 CONFIG__RUN__APP=main:app
 CONFIG__RUN__HOST=localhost
@@ -75,18 +80,22 @@ CONFIG__SUPERUSER__INFO=<your admin info>
 # session middleware
 CONFIG__SESSION_MIDDLEWARE__SECRET_KEY=<your secret>
 ```
-- to generate secrets you can use next command:
+To generate secrets, use the following command:
+
 ```shell
 python -c "import secrets; print(secrets.token_hex())"
 ```
 
 ## Running
-Run docker:
+
+Run docker compose:
+
 ```shell
 docker compose --env-file .env-compose  up -d
 ```
 
 Run the application:
+
 ```shell
 uvicorn app.main:app --reload
 ```
@@ -95,15 +104,17 @@ uvicorn app.main:app --reload
 ## Usage
 
 ### Superuser
-Before using you have to create first superuser.
-- create superuser
+Before using the application you need to create the first superuser:
+
 ```shell
 python -m app.scripts.create_superuser
 ```
-After that you can use superuser credentials to log in.
+
+Use the credentials you provided in `.env` file to log in.
 
 ### Admin
-Admin interface uses [starlette-admin](https://jowilf.github.io/starlette-admin/) and available by default on `localhost:8000/admin`
+
+Admin interface uses [starlette-admin](https://jowilf.github.io/starlette-admin/) and is available by default at `localhost:8000/admin`
 
 ### API documentation
-Endpoints available by default on `localhost:8000/docs`
+API endpoints and documentation are available by default at `localhost:8000/docs`
