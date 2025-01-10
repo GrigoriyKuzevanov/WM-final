@@ -1,3 +1,5 @@
+from typing import TypeVar
+
 from core.model_adapter import ModelAdapter
 from users.exceptions import UserNotFound
 from utils.check_after_now import check_after_now
@@ -15,6 +17,8 @@ from .exceptions import (
 from .models import Meeting
 from .schemas.meeting import MeetingCreate, MeetingUpdate
 
+MM = TypeVar("MM", bound=Meeting)
+
 
 class MeetingService:
     """Meetings managing service."""
@@ -28,7 +32,7 @@ class MeetingService:
 
         self.meetings_adapter = meetings_adapter
 
-    async def get_meeting_by_creator(self, meeting_id: int, user_id: int) -> Meeting:
+    async def get_meeting_by_creator(self, meeting_id: int, user_id: int) -> MM:
         """Get meeting by creator.
 
         Args:
@@ -55,7 +59,7 @@ class MeetingService:
 
     async def get_meeting_with_users_by_creator(
         self, meeting_id: int, user_id: int
-    ) -> Meeting:
+    ) -> MM:
         """Get meeting with loaded users by creator.
 
         Args:
@@ -82,7 +86,7 @@ class MeetingService:
 
     async def create_meeting(
         self, creator_id: int, meeting_create_schema: MeetingCreate
-    ) -> Meeting:
+    ) -> MM:
         """Creates a mew meeting.
 
         Args:
@@ -108,7 +112,7 @@ class MeetingService:
         meeting_id: int,
         user_id: int,
         meeting_update_schema: MeetingUpdate,
-    ) -> Meeting:
+    ) -> MM:
         """Updates meeting by creator
 
         Args:
@@ -148,7 +152,7 @@ class MeetingService:
         user_to_add_id: int,
         creator_id: int,
         users_adapter: ModelAdapter,
-    ) -> Meeting:
+    ) -> MM:
         """Add user to meeting users.
 
         Args:
@@ -183,7 +187,7 @@ class MeetingService:
         user_to_remove_id: int,
         creator_id: int,
         users_adapter: ModelAdapter,
-    ) -> Meeting:
+    ) -> MM:
         """Remove user from meeting users.
 
         Args:
@@ -212,7 +216,7 @@ class MeetingService:
 
         return await self.meetings_adapter.remove_user(meeting, user)
 
-    async def get_user_meetings(self, user_id: int, today: bool) -> list[Meeting]:
+    async def get_user_meetings(self, user_id: int, today: bool) -> list[MM]:
         """Retrieve user meetings.
 
         Args:

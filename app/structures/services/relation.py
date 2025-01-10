@@ -1,3 +1,5 @@
+from typing import TypeVar
+
 from structures.adapters.relation_adapter import RelationAdapter
 from structures.adapters.role_adapter import RoleAdapter
 from structures.exceptions.relation import (
@@ -8,6 +10,8 @@ from structures.exceptions.relation import (
 from structures.exceptions.role import RoleNotFound
 from structures.models import Relation
 from structures.schemas.realtion import RelationCreate
+
+RNM = TypeVar("RNM", bound=Relation)
 
 
 class RelationService:
@@ -27,7 +31,7 @@ class RelationService:
         roles_adapter: RoleAdapter,
         relation_create_schema: RelationCreate,
         structure_id: int,
-    ) -> Relation:
+    ) -> RNM:
         """Creates a new relation.
 
         Args:

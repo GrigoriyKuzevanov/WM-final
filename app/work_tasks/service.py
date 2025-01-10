@@ -1,3 +1,5 @@
+from typing import TypeVar
+
 from core.model_adapter import ModelAdapter
 from structures.adapters.relation_adapter import RelationAdapter
 from structures.adapters.role_adapter import RoleAdapter
@@ -21,6 +23,8 @@ from .schemas import (
     WorkTaskUpdateStatus,
 )
 
+WTM = TypeVar("WTM", bound=WorkTask)
+
 
 class WorkTaskService:
     """Work tasks managing service."""
@@ -42,7 +46,7 @@ class WorkTaskService:
         users_adapter: ModelAdapter,
         roles_adapter: RoleAdapter,
         relations_adapter: RelationAdapter,
-    ) -> WorkTask:
+    ) -> WTM:
         """Creates a new work task.
 
         Args:
@@ -93,7 +97,7 @@ class WorkTaskService:
             task_create_schema, user_id
         )
 
-    async def get_task_by_creator(self, task_id: int, creator_id: int) -> WorkTask:
+    async def get_task_by_creator(self, task_id: int, creator_id: int) -> WTM:
         """Get work task by creator
 
         Args:
@@ -120,7 +124,7 @@ class WorkTaskService:
 
     async def update_task(
         self, task_id: int, user_id: int, task_update_schema: WorkTaskUpdate
-    ) -> WorkTask:
+    ) -> WTM:
         """Updates work task.
 
         Args:
@@ -144,7 +148,7 @@ class WorkTaskService:
 
     async def update_task_status(
         self, task_id: int, user_id: int, task_update_schema: WorkTaskUpdateStatus
-    ) -> WorkTask:
+    ) -> WTM:
         """Updates work task status.
 
         Args:
@@ -172,7 +176,7 @@ class WorkTaskService:
 
     async def update_task_rate(
         self, task_id: int, user_id: int, task_update_schema: WorkTaskUpdateRate
-    ) -> WorkTask:
+    ) -> WTM:
         """Updates work task rate.
 
         Args:
@@ -241,7 +245,7 @@ class WorkTaskService:
 
         return {"rating": rating}
 
-    async def get_user_assigned_tasks(self, user_id: int) -> list[WorkTask]:
+    async def get_user_assigned_tasks(self, user_id: int) -> list[WTM]:
         """Retrieves all the work tasks assigned to the user with provided id.
 
         Args:
@@ -255,7 +259,7 @@ class WorkTaskService:
 
         return tasks
 
-    async def get_user_created_tasks(self, user_id: int) -> list[WorkTask]:
+    async def get_user_created_tasks(self, user_id: int) -> list[WTM]:
         """Retrieves all the work tasks created by the user with provided id.
 
         Args:

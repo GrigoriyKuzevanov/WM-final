@@ -1,9 +1,14 @@
+from typing import TypeVar
+
 from structures.adapters.structure_adapter import StructureAdapter
 from structures.exceptions.role import AlreadyHaveRole
 from structures.exceptions.structure import StructureNotFound
 from structures.models import Role, Structure
 from structures.schemas.structure import StructureCreate, StructureUpdate
+from structures.services.role import RM
 from users.schemas.user import UserRead
+
+SM = TypeVar("SM", bound=Structure)
 
 
 class StructureService:
@@ -18,7 +23,7 @@ class StructureService:
 
         self.structures_adapter = structures_adapter
 
-    async def get_user_structure(self, user_id: int) -> Structure:
+    async def get_user_structure(self, user_id: int) -> SM:
         """Retrieve structure by provided user id.
 
         Args:
@@ -38,7 +43,7 @@ class StructureService:
 
         return structure
 
-    async def get_user_team(self, user_id: int) -> list[Role]:
+    async def get_user_team(self, user_id: int) -> list[RM]:
         """Retrieve user's structure team.
 
         Args:
@@ -59,7 +64,7 @@ class StructureService:
         self,
         structure_create_schema: StructureCreate,
         team_admin: UserRead,
-    ) -> Structure:
+    ) -> SM:
         """Creates a new structure with provided admin.
 
         Args:
@@ -83,7 +88,7 @@ class StructureService:
 
     async def update_structure(
         self, structure_update_schema: StructureUpdate, structure_id: int
-    ) -> Structure:
+    ) -> SM:
         """Updates structure by provided structure id.
 
         Args:

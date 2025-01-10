@@ -1,3 +1,5 @@
+from typing import TypeVar
+
 from core.model_adapter import ModelAdapter
 from structures.adapters.role_adapter import RoleAdapter
 from structures.exceptions.role import (
@@ -10,6 +12,8 @@ from structures.exceptions.role import (
 from structures.models import Role
 from structures.schemas.role import RoleCreate, RoleOut, RoleUpdate
 from users.exceptions import UserNotFound
+
+RM = TypeVar("RM", bound=Role)
 
 
 class RoleService:
@@ -24,7 +28,7 @@ class RoleService:
 
         self.roles_adapter = roles_adapter
 
-    async def get_role_by_id(self, role_id: int) -> Role:
+    async def get_role_by_id(self, role_id: int) -> RM:
         """Retrieves role by id.
 
         Args:
@@ -44,7 +48,7 @@ class RoleService:
 
         return role
 
-    async def get_role_subordinates(self, role_id: int) -> list[Role]:
+    async def get_role_subordinates(self, role_id: int) -> list[RM]:
         """Retrieves role's subordinates.
 
         Args:
@@ -64,7 +68,7 @@ class RoleService:
 
         return role.subordinates
 
-    async def get_role_superiors(self, role_id: int) -> list[Role]:
+    async def get_role_superiors(self, role_id: int) -> list[RM]:
         """Retrieves role's superiors.
 
         Args:
@@ -86,7 +90,7 @@ class RoleService:
 
     async def create_role(
         self, role_create_schema: RoleCreate, structure_id: int
-    ) -> Role:
+    ) -> RM:
         """Creates a new role with provided structure id.
         Args:
             structure_id (int): Structure id
@@ -104,7 +108,7 @@ class RoleService:
         structure_id: int,
         user_id: int,
         users_adapter: ModelAdapter,
-    ) -> Role:
+    ) -> RM:
         """Bounds user with provided id to role with provided id.
 
         Args:
@@ -140,7 +144,7 @@ class RoleService:
 
     async def update_role(
         self, role_update_schema: RoleUpdate, role_to_update: Role
-    ) -> Role:
+    ) -> RM:
         """Update role model.
 
         Args:
