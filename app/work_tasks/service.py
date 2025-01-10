@@ -240,3 +240,31 @@ class WorkTaskService:
             raise TasksNotFound
 
         return {"rating": rating}
+
+    async def get_user_assigned_tasks(self, user_id: int) -> list[WorkTask]:
+        """Retrieves all the work tasks assigned to the user with provided id.
+
+        Args:
+            user_id (int): User id
+
+        Returns:
+            list[WorkTask]: List of WorkTask models
+        """
+
+        tasks = await self.tasks_adapter.get_user_assigned_tasks(user_id)
+
+        return tasks
+
+    async def get_user_created_tasks(self, user_id: int) -> list[WorkTask]:
+        """Retrieves all the work tasks created by the user with provided id.
+
+        Args:
+            user_id (int): User id
+
+        Returns:
+            list[WorkTask]: List of WorkTask models
+        """
+
+        tasks = await self.tasks_adapter.get_user_created_tasks(user_id)
+
+        return tasks
