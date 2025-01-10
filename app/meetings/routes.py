@@ -31,6 +31,14 @@ router = APIRouter(
     Requirements:
     - The "meet_datetime" datetime for the meeting must be in the future
     """,
+    responses={
+        status.HTTP_401_UNAUTHORIZED: {
+            "description": "The current user unauthorized",
+        },
+        status.HTTP_403_FORBIDDEN: {
+            "description": "The meet datetime is in the past",
+        },
+    },
 )
 async def create_meeting(
     meeting_input_schema: MeetingCreate,
@@ -62,6 +70,18 @@ async def create_meeting(
     - The current user must be creator of the meeting
     - The "meet_datetime" datetime for the meeting must be in the future
     """,
+    responses={
+        status.HTTP_401_UNAUTHORIZED: {
+            "description": "The current user unauthorized",
+        },
+        status.HTTP_403_FORBIDDEN: {
+            "description": """The meet datetime is in the past;
+                              The current user isn't a creator of the meeting""",
+        },
+        status.HTTP_404_NOT_FOUND: {
+            "description": "A meeting with provided id isn't found",
+        },
+    },
 )
 async def update_meeting(
     meeting_id: int,
@@ -94,6 +114,17 @@ async def update_meeting(
     - A meeting with provided id must exist
     - The current user must be creator of the meeting
     """,
+    responses={
+        status.HTTP_401_UNAUTHORIZED: {
+            "description": "The current user unauthorized",
+        },
+        status.HTTP_403_FORBIDDEN: {
+            "description": "The current user isn't a creator of the meeting",
+        },
+        status.HTTP_404_NOT_FOUND: {
+            "description": "A meeting with provided id isn't found",
+        },
+    },
 )
 async def delete_meeting(
     meeting_id: int,
@@ -123,6 +154,19 @@ async def delete_meeting(
     - A user with the provided id must exist
     - A user with the provided id must not already be in the meeting users
     """,
+    responses={
+        status.HTTP_401_UNAUTHORIZED: {
+            "description": "The current user unauthorized",
+        },
+        status.HTTP_403_FORBIDDEN: {
+            "description": """A user with provided id is already in the meeting users;
+                              The current user isn't a creator of the meeting""",
+        },
+        status.HTTP_404_NOT_FOUND: {
+            "description": """A meeting with provided id isn't found;
+                              A user with provided id isn't found""",
+        },
+    },
 )
 async def add_user(
     meeting_id: int,
@@ -160,6 +204,19 @@ async def add_user(
     - A user with the provided id must exist
     - A user with the provided id must be in the meeting users
     """,
+    responses={
+        status.HTTP_401_UNAUTHORIZED: {
+            "description": "The current user unauthorized",
+        },
+        status.HTTP_403_FORBIDDEN: {
+            "description": """A user with provided id isn't in the meeting users;
+                              The current user isn't a creator of the meeting""",
+        },
+        status.HTTP_404_NOT_FOUND: {
+            "description": """A meeting with provided id isn't found;
+                              A user with provided id isn't found""",
+        },
+    },
 )
 async def remove_user(
     meeting_id: int,
@@ -190,6 +247,11 @@ async def remove_user(
     Parameters:
     - today: If true retrieves only today meetings, if false - all the user's meetings
     """,
+    responses={
+        status.HTTP_401_UNAUTHORIZED: {
+            "description": "The current user unauthorized",
+        },
+    },
 )
 async def get_my_meetings(
     today: bool = False,

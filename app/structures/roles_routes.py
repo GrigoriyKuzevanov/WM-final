@@ -28,46 +28,17 @@ router = APIRouter(
     Requirements:
     - The current user must have a role
     """,
+    responses={
+        status.HTTP_401_UNAUTHORIZED: {
+            "description": "The current user unauthorized",
+        },
+        status.HTTP_404_NOT_FOUND: {
+            "description": "The current user doesn't have a role",
+        },
+    },
 )
 async def get_my_role(current_user_role: RoleOut = Depends(current_user_role)):
     return current_user_role
-
-
-# @router.post(
-#     "/{user_id}",
-#     response_model=RoleOut,
-#     status_code=status.HTTP_201_CREATED,
-#     summary="Create a new role",
-#     description="""
-#     Creates a new role by a provided schema and bound a user with provided user_id to
-#     it. Requires authorization. The created role belongs to the current user role's
-#     structure.
-
-#     Parameters:
-#     - user_id: The id of the user to bound to the created role
-
-#     Requirements:
-#     - The current user must be the team administrator
-#     - The user with provided user id must exist
-#     """,
-# )
-# async def create_role(
-#     user_id: int,
-#     role_input_schema: RoleCreate,
-#     current_user_team_admin: RoleOut = Depends(current_user_team_admin),
-#     session: AsyncSession = Depends(db_connector.get_session),
-# ):
-#     roles_adapter = RoleAdapter(session)
-#     user_adapter = ModelAdapter(User, session)
-
-#     role_service = RoleService(roles_adapter)
-
-#     return await role_service.create_role(
-#         current_user_role=current_user_team_admin,
-#         role_create_schema=role_input_schema,
-#         user_id=user_id,
-#         user_adapter=user_adapter,
-#     )
 
 
 @router.post(
@@ -82,6 +53,17 @@ async def get_my_role(current_user_role: RoleOut = Depends(current_user_role)):
     Requirements:
     - The current user must be the team administrator
     """,
+    responses={
+        status.HTTP_401_UNAUTHORIZED: {
+            "description": "The current user unauthorized",
+        },
+        status.HTTP_403_FORBIDDEN: {
+            "description": "The current user is not a team administrator",
+        },
+        status.HTTP_404_NOT_FOUND: {
+            "description": "The current user doesn't have a role",
+        },
+    },
 )
 async def create_role(
     role_input_schema: RoleCreate,
@@ -115,6 +97,20 @@ async def create_role(
     - The role with provided id and the current user must belong to the same structure
     - The user with provided id must exist
     """,
+    responses={
+        status.HTTP_401_UNAUTHORIZED: {
+            "description": "The current user unauthorized",
+        },
+        status.HTTP_403_FORBIDDEN: {
+            "description": """The current user is not a team administrator;
+                              Can't bound a user to a role from another structure""",
+        },
+        status.HTTP_404_NOT_FOUND: {
+            "description": """The current user doesn't have a role;
+                              A role with provided id isn't found;
+                              A user with provided id isn't found""",
+        },
+    },
 )
 async def bound_user(
     role_id: int,
@@ -145,6 +141,14 @@ async def bound_user(
     Requirements:
     - The current user must have a role
     """,
+    responses={
+        status.HTTP_401_UNAUTHORIZED: {
+            "description": "The current user unauthorized",
+        },
+        status.HTTP_404_NOT_FOUND: {
+            "description": "The current user doesn't have a role",
+        },
+    },
 )
 async def update_my_role(
     role_input_schema: RoleUpdate,
@@ -176,6 +180,20 @@ async def update_my_role(
     - The role with provided id must not be the current user's role
     - The role with provided id must belong to the current user's structure
     """,
+    responses={
+        status.HTTP_401_UNAUTHORIZED: {
+            "description": "The current user unauthorized",
+        },
+        status.HTTP_403_FORBIDDEN: {
+            "description": """The current user is not a team administrator;
+                              Trying delete own role;
+                              Can't delete a role from another structure""",
+        },
+        status.HTTP_404_NOT_FOUND: {
+            "description": """The current user doesn't have a role;
+                              A role with provided id isn't found""",
+        },
+    },
 )
 async def delete_role(
     role_id: int,

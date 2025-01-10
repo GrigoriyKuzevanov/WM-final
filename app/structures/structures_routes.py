@@ -28,6 +28,14 @@ router = APIRouter(
     Requirements:
     - The current user must be bound to a structure
     """,
+    responses={
+        status.HTTP_401_UNAUTHORIZED: {
+            "description": "The current user unauthorized",
+        },
+        status.HTTP_404_NOT_FOUND: {
+            "description": "The current user is not bound to any structure"
+        },
+    },
 )
 async def get_my_strucure(
     current_user: UserRead = Depends(current_user),
@@ -51,6 +59,14 @@ async def get_my_strucure(
     Requirements:
     - The current user must be bound to a structure
     """,
+    responses={
+        status.HTTP_401_UNAUTHORIZED: {
+            "description": "The current user unauthorized",
+        },
+        status.HTTP_404_NOT_FOUND: {
+            "description": "The current user is not bound to any structure"
+        },
+    },
 )
 async def get_my_team(
     current_user: UserRead = Depends(current_user),
@@ -75,6 +91,14 @@ async def get_my_team(
     Requirements:
     - The current user must not have a role
     """,
+    responses={
+        status.HTTP_401_UNAUTHORIZED: {
+            "description": "The current user unauthorized",
+        },
+        status.HTTP_403_FORBIDDEN: {
+            "description": "The current user already has a role"
+        },
+    },
 )
 async def create_structure(
     structure_input_schema: StructureCreate,
@@ -101,6 +125,17 @@ async def create_structure(
     Requirements:
     - The current user must be a team administrator
     """,
+    responses={
+        status.HTTP_401_UNAUTHORIZED: {
+            "description": "The current user unauthorized",
+        },
+        status.HTTP_403_FORBIDDEN: {
+            "description": "The current user is not a team administrator",
+        },
+        status.HTTP_404_NOT_FOUND: {
+            "description": "The current user doesn't have a role",
+        },
+    },
 )
 async def update_my_structure(
     structure_input_schema: StructureUpdate,

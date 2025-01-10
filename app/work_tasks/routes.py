@@ -43,6 +43,20 @@ router = APIRouter(
     - The assignee user must be a subordinate of the creator
     - The "complete_by" datetime for the work task must be in the future
     """,
+    responses={
+        status.HTTP_401_UNAUTHORIZED: {
+            "description": "The current user unauthorized",
+        },
+        status.HTTP_403_FORBIDDEN: {
+            "description": """The task complete by is in the past;
+                              The current user doesn't have any role;
+                              The assignee user isn't a subordinate of the current
+                              user;""",
+        },
+        status.HTTP_404_NOT_FOUND: {
+            "description": "A user with provided id isn't found",
+        },
+    },
 )
 async def create_task(
     task_input_schema: WorkTaskCreate,
@@ -82,6 +96,18 @@ async def create_task(
     - The current user must be creator of the work task
     - The "complete_by" datetime for the work task must be in the future
     """,
+    responses={
+        status.HTTP_401_UNAUTHORIZED: {
+            "description": "The current user unauthorized",
+        },
+        status.HTTP_403_FORBIDDEN: {
+            "description": """The task complete by is in the past;
+                              The current user isn't a creator of the task""",
+        },
+        status.HTTP_404_NOT_FOUND: {
+            "description": "A task with provided id isn't found",
+        },
+    },
 )
 async def update_task(
     task_id: int,
@@ -114,6 +140,17 @@ async def update_task(
     - A work task with provided id must exist
     - The current user must be assignee of the work task
     """,
+    responses={
+        status.HTTP_401_UNAUTHORIZED: {
+            "description": "The current user unauthorized",
+        },
+        status.HTTP_403_FORBIDDEN: {
+            "description": "The current user isn't an assignee of the task",
+        },
+        status.HTTP_404_NOT_FOUND: {
+            "description": "A task with provided id isn't found",
+        },
+    },
 )
 async def update_task_status(
     task_id: int,
@@ -146,6 +183,17 @@ async def update_task_status(
     - A work task with provided id must exist
     - The current user must be creator of the work task
     """,
+    responses={
+        status.HTTP_401_UNAUTHORIZED: {
+            "description": "The current user unauthorized",
+        },
+        status.HTTP_403_FORBIDDEN: {
+            "description": "The current user isn't a creator of the task",
+        },
+        status.HTTP_404_NOT_FOUND: {
+            "description": "A task with provided id isn't found",
+        },
+    },
 )
 async def update_task_rate(
     task_id: int,
@@ -178,6 +226,17 @@ async def update_task_rate(
     - A work task with provided id must exist
     - The current user must be creator of the work task
     """,
+    responses={
+        status.HTTP_401_UNAUTHORIZED: {
+            "description": "The current user unauthorized",
+        },
+        status.HTTP_403_FORBIDDEN: {
+            "description": "The current user isn't a creator of the task",
+        },
+        status.HTTP_404_NOT_FOUND: {
+            "description": "A task with provided id isn't found",
+        },
+    },
 )
 async def delete_task(
     task_id: int,
@@ -201,6 +260,14 @@ async def delete_task(
     Requirements:
     - The current user must have at least one completed work task for past 90 days.
     """,
+    responses={
+        status.HTTP_401_UNAUTHORIZED: {
+            "description": "The current user unauthorized",
+        },
+        status.HTTP_404_NOT_FOUND: {
+            "description": "Tasks aren't found",
+        },
+    },
 )
 async def get_my_rating(
     current_user: UserRead = Depends(current_user),
@@ -224,6 +291,17 @@ async def get_my_rating(
     - The current user must have an associated role (be a member of existing structure)
     - The team members must have at least one completed work task for past 90 days.
     """,
+    responses={
+        status.HTTP_401_UNAUTHORIZED: {
+            "description": "The current user unauthorized",
+        },
+        status.HTTP_403_FORBIDDEN: {
+            "description": "The current user doesn't have a role",
+        },
+        status.HTTP_404_NOT_FOUND: {
+            "description": "Tasks aren't found",
+        },
+    },
 )
 async def get_team_rating(
     current_user_role: RoleOut = Depends(current_user_role),

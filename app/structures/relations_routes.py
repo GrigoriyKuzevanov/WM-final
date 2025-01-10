@@ -35,6 +35,24 @@ router = APIRouter(
     the same structure
     - The relation must be unique
     """,
+    responses={
+        status.HTTP_401_UNAUTHORIZED: {
+            "description": "The current user unauthorized",
+        },
+        status.HTTP_403_FORBIDDEN: {
+            "description": """The current user is not a team administrator;
+                              A user with provided superior id, a user with subordinate
+                              id and the current user don't belong to the same
+                              structure;
+                              A relation with provided superior and subordinate ids
+                              already exists""",
+        },
+        status.HTTP_404_NOT_FOUND: {
+            "description": """The current user doesn't have a role;
+                              A user with provided superior id isn't found;
+                              A user with provided subordinate id isn't found """,
+        },
+    },
 )
 async def create_relation(
     relation_input_schema: RelationCreate,
@@ -67,6 +85,18 @@ async def create_relation(
     - A relation with provided id must exist
     - The current user must be the relation's team administrator
     """,
+    responses={
+        status.HTTP_401_UNAUTHORIZED: {
+            "description": "The current user unauthorized",
+        },
+        status.HTTP_403_FORBIDDEN: {
+            "description": "The current user is not a team administrator",
+        },
+        status.HTTP_404_NOT_FOUND: {
+            "description": """The current user doesn't have a role;
+                              A relation with provided id isn't found""",
+        },
+    },
 )
 async def delete_relation(
     relation_id: int,
@@ -93,6 +123,14 @@ async def delete_relation(
     Requirements:
     - The current user must have a role
     """,
+    responses={
+        status.HTTP_401_UNAUTHORIZED: {
+            "description": "The current user unauthorized",
+        },
+        status.HTTP_404_NOT_FOUND: {
+            "description": "The current user doesn't have a role",
+        },
+    },
 )
 async def get_me_subordinate(
     current_user: UserRead = Depends(current_user),
@@ -116,6 +154,14 @@ async def get_me_subordinate(
     Requirements:
     - The current user must have a role
     """,
+    responses={
+        status.HTTP_401_UNAUTHORIZED: {
+            "description": "The current user unauthorized",
+        },
+        status.HTTP_404_NOT_FOUND: {
+            "description": "The current user doesn't have a role",
+        },
+    },
 )
 async def get_me_superior(
     current_user: UserRead = Depends(current_user),
