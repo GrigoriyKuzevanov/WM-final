@@ -236,3 +236,43 @@ async def get_team_rating(
     return await tasks_service.get_team_rating(
         structure_id=current_user_role.structure_id
     )
+
+
+@router.get(
+    "/me-assigned",
+    response_model=list[WorkTaskOut],
+    summary="Get the user assigned work tasks",
+    description="""
+    Retrieves all the work tasks which have the current user as an assignee. Requires
+    authorization.
+    """,
+)
+async def get_my_assigned_tasks(
+    current_user: UserRead = Depends(current_user),
+    session: AsyncSession = Depends(db_connector.get_session),
+):
+    tasks_adapter = WorkTaskAdapter(session)
+
+    tasks_service = WorkTaskService(tasks_adapter)
+
+    return await tasks_service.get_user_assigned_tasks(current_user.id)
+
+
+@router.get(
+    "/me-created",
+    response_model=list[WorkTaskOut],
+    summary="Get the user created work tasks",
+    description="""
+    Retrieves all the work tasks which have the current user as a creator. Requires
+    authorization.
+    """,
+)
+async def get_my_created_tasks(
+    current_user: UserRead = Depends(current_user),
+    session: AsyncSession = Depends(db_connector.get_session),
+):
+    tasks_adapter = WorkTaskAdapter(session)
+
+    tasks_service = WorkTaskService(tasks_adapter)
+
+    return await tasks_service.get_user_created_tasks(current_user.id)
