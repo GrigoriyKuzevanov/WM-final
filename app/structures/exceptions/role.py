@@ -16,6 +16,12 @@ NotTeamAdministrator = HTTPException(
 )
 
 
+RoleOtherStructure = HTTPException(
+    status_code=status.HTTP_403_FORBIDDEN,
+    detail="Can't do this action. Role from the other team",
+)
+
+
 DeleteYourselfRole = HTTPException(
     status_code=status.HTTP_403_FORBIDDEN, detail="Can't delete yourself"
 )
