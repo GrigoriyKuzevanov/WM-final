@@ -121,3 +121,31 @@ class WorkTaskAdapter(ModelAdapter):
         )
 
         return await self.session.scalar(stmt)
+
+    async def get_user_assigned_tasks(self, user_id: int) -> list[WTM]:
+        """Gets all tasks where user with provided user id is assignee.
+
+        Args:
+            user_id (int): User id
+
+        Returns:
+            list[WTM]: List of task models
+        """
+
+        stmt = select(self.model).where(self.model.assignee_id == user_id)
+
+        return await self.session.scalars(stmt)
+
+    async def get_user_created_tasks(self, user_id: int) -> list[WTM]:
+        """Gets all tasks where user with provided user id is creator.
+
+        Args:
+            user_id (int): User id
+
+        Returns:
+            list[WTM]: List of task models
+        """
+
+        stmt = select(self.model).where(self.model.creator_id == user_id)
+
+        return await self.session.scalars(stmt)
