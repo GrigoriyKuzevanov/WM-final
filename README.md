@@ -11,8 +11,6 @@ Use Poetry to create virtual environment and install dependencies:
 poetry install
 ```
 
-
-
 ## Configuration
 
 Into the project directory create an `.env-compose` file for running database with docker compose:
@@ -94,21 +92,30 @@ Run docker compose:
 docker compose --env-file .env-compose  up -d
 ```
 
-Run the application:
+Get into app directory:
 
 ```shell
-uvicorn app.main:app --reload
+cd app
 ```
 
+Create tables in database:
+```shell
+python -m migration_utils upgrade head
+```
 
-## Usage
-
-### Superuser
 Before using the application you need to create the first superuser:
 
 ```shell
 python -m app.scripts.create_superuser
 ```
+
+Run the application:
+
+```shell
+cd .. && uvicorn app.main:app --reload
+```
+
+## Usage
 
 Use the credentials you provided in `.env` file to log in.
 
