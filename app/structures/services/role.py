@@ -5,6 +5,7 @@ from structures.exceptions.role import (
     DeleteYourselfRole,
     RoleNotFound,
     RoleNotFoundForUser,
+    RoleOtherStructure,
 )
 from structures.models import Role
 from structures.schemas.role import RoleCreate, RoleOut, RoleUpdate
@@ -84,35 +85,58 @@ class RoleService:
         return role.superiors
 
     async def create_role(
-        self,
-        current_user_role: RoleOut,
-        role_create_schema: RoleCreate,
-        user_id: int,
-        user_adapter: ModelAdapter,
+        self, role_create_schema: RoleCreate, structure_id: int
     ) -> Role:
-        """Create new role and bound it to provided user.
-
+        """Creates a new role with provided structure id.
         Args:
-            current_user_role (RoleOut): Current user role schema
+            structure_id (int): Structure id
             role_create_schema (RoleCreate): Schema to create new role
-            user_id (int): Id of the user to bound
-            user_adapter (ModelAdapter): Adapter for interactive with database to
-            retrieve user model
-
-        Returns:
-            Role: Created role model
         """
 
-        user = await user_adapter.read_item_by_id(user_id)
+        return await self.roles_adapter.create_role(
+            role_create_schema=role_create_schema,
+            structure_id=structure_id,
+        )
+
+    async def bound_user(
+        self,
+        role_id: int,
+        structure_id: int,
+        user_id: int,
+        users_adapter: ModelAdapter,
+    ) -> Role:
+        """Bounds user with provided id to role with provided id.
+
+        Args:
+            role_id (int): Role id
+            structure_id (int): Structure id
+            user_id (int): User id
+            users_adapter (ModelAdapter): Adapter for interactive with database to
+            retrieve user model
+
+        Raises:
+            RoleNotFound: If role with provided id not exists
+            RoleOtherStructure: If role with provided id belongs to the other structure
+            UserNotFound: If user with provided id not exists
+
+        Returns:
+            Role: Bounded role model
+        """
+
+        role = await self.roles_adapter.get_with_users(role_id)
+
+        if not role:
+            raise RoleNotFound
+
+        if not role.structure_id == structure_id:
+            raise RoleOtherStructure
+
+        user = await users_adapter.read_item_by_id(user_id)
 
         if not user:
             raise UserNotFound
 
-        return await self.roles_adapter.create_role_and_bound_to_user(
-            role_create_schema=role_create_schema,
-            user_to_bound=user,
-            structure_id=current_user_role.structure_id,
-        )
+        return await self.roles_adapter.bound_user(role, user)
 
     async def update_role(
         self, role_update_schema: RoleUpdate, role_to_update: Role

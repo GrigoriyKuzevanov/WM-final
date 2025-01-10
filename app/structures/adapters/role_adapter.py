@@ -24,14 +24,14 @@ class RoleAdapter(ModelAdapter):
 
         super().__init__(Role, session)
 
-    async def create_role_and_bound_to_user(
-        self, role_create_schema: RoleCreate, user_to_bound: User, structure_id: int
+    async def create_role(
+        self, role_create_schema: RoleCreate, structure_id: int
     ) -> RM:
-        """Creates new role and bounds created role to current user.
+        """Creates a new role with provided structure id.
 
         Args:
             role_create_schema (RoleCreate): Pydantic schema to create role
-            current_user_id (int): Current user id to bound
+            structure_id (int): Structure id
 
         Returns:
             RM: Created role object
@@ -39,30 +39,42 @@ class RoleAdapter(ModelAdapter):
 
         role = self.model(**role_create_schema.model_dump(), structure_id=structure_id)
 
-        role.users.append(user_to_bound)
+        self.session.add(role)
+        await self.session.commit()
+
+        return role
+
+    async def bound_user(self, role: Role, user: User) -> RM:
+        """Bound user to role.
+
+        Args:
+            role (Role): Role object
+            user (User): User object
+
+        Returns:
+            RM: Role object with bounded user
+        """
+
+        role.users.append(user)
 
         self.session.add(role)
         await self.session.commit()
 
         return role
 
-    async def add_user(self, user_id: int) -> RM:
-        """Bounds user to the role.
+    async def get_with_users(self, role_id: int) -> RM:
+        """Gets Role with provided id with joined loaded users.
 
         Args:
-            user_id (int): User id
+            role_id (int): Role id
 
         Returns:
-            RM: Updated role object
+            RM: Role object
         """
 
-        user = await self.session.get(User, user_id)
-        self.model.users.append(user)
+        stmt = select(Role).options(joinedload(Role.users)).where(Role.id == role_id)
 
-        await self.session.commit()
-        await self.session.refresh(self.model)
-
-        return self.model
+        return await self.session.scalar(stmt)
 
     async def get_with_subordinates(self, role_id: int) -> RM:
         """Gets Role with provided id with joined loaded suboridinates.

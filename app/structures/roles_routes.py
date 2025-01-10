@@ -33,40 +33,105 @@ async def get_my_role(current_user_role: RoleOut = Depends(current_user_role)):
     return current_user_role
 
 
+# @router.post(
+#     "/{user_id}",
+#     response_model=RoleOut,
+#     status_code=status.HTTP_201_CREATED,
+#     summary="Create a new role",
+#     description="""
+#     Creates a new role by a provided schema and bound a user with provided user_id to
+#     it. Requires authorization. The created role belongs to the current user role's
+#     structure.
+
+#     Parameters:
+#     - user_id: The id of the user to bound to the created role
+
+#     Requirements:
+#     - The current user must be the team administrator
+#     - The user with provided user id must exist
+#     """,
+# )
+# async def create_role(
+#     user_id: int,
+#     role_input_schema: RoleCreate,
+#     current_user_team_admin: RoleOut = Depends(current_user_team_admin),
+#     session: AsyncSession = Depends(db_connector.get_session),
+# ):
+#     roles_adapter = RoleAdapter(session)
+#     user_adapter = ModelAdapter(User, session)
+
+#     role_service = RoleService(roles_adapter)
+
+#     return await role_service.create_role(
+#         current_user_role=current_user_team_admin,
+#         role_create_schema=role_input_schema,
+#         user_id=user_id,
+#         user_adapter=user_adapter,
+#     )
+
+
 @router.post(
-    "/{user_id}",
+    "",
     response_model=RoleOut,
     status_code=status.HTTP_201_CREATED,
     summary="Create a new role",
     description="""
-    Creates a new role by a provided schema and bound a user with provided user_id to
-    it. Requires authorization. The created role belongs to the current user role's
-    structure.
-
-    Parameters:
-    - user_id: The id of the user to bound to the created role
+    Creates a new role by a provided schema. Requires authorization. The created role
+    belongs to the current user role's structure.
 
     Requirements:
     - The current user must be the team administrator
-    - The user with provided user id must exist
     """,
 )
 async def create_role(
-    user_id: int,
     role_input_schema: RoleCreate,
     current_user_team_admin: RoleOut = Depends(current_user_team_admin),
     session: AsyncSession = Depends(db_connector.get_session),
 ):
     roles_adapter = RoleAdapter(session)
-    user_adapter = ModelAdapter(User, session)
 
     role_service = RoleService(roles_adapter)
 
     return await role_service.create_role(
-        current_user_role=current_user_team_admin,
         role_create_schema=role_input_schema,
+        structure_id=current_user_team_admin.structure_id,
+    )
+
+
+@router.get(
+    "/{role_id}/bound-user/{user_id}",
+    response_model=RoleOut,
+    summary="Bound a user to a role",
+    description="""
+    Bounds a user with provided id to a role with provided id. Requires authorization.
+
+    Parameters:
+    - role_id: The id of the role which need bound to user
+    - user_id: The id of the user to bound to the role
+
+    Requirements:
+    - The current user must be the team administrator
+    - The role with provided id must exist
+    - The role with provided id and the current user must belong to the same structure
+    - The user with provided id must exist
+    """,
+)
+async def bound_user(
+    role_id: int,
+    user_id: int,
+    current_user_team_admin: RoleOut = Depends(current_user_team_admin),
+    session: AsyncSession = Depends(db_connector.get_session),
+):
+    roles_adapter = RoleAdapter(session)
+    users_adapter = ModelAdapter(User, session)
+
+    roles_service = RoleService(roles_adapter)
+
+    return await roles_service.bound_user(
+        role_id=role_id,
+        structure_id=current_user_team_admin.structure_id,
         user_id=user_id,
-        user_adapter=user_adapter,
+        users_adapter=users_adapter,
     )
 
 
