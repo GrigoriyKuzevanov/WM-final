@@ -1,6 +1,24 @@
-# WM-final
+# Team manager
 
-## env variables
+## Installation
+Clone this repo and get into it:
+```shell
+git clone https://github.com/GrigoriyKuzevanov/WM-final.git
+cd WM-final
+```
+
+Use poetry to create virtual environment and install requirements:
+```shell
+poetry install
+```
+
+
+
+## Configuration
+Into project directory create an `.env-compose` file for running database with docker compose:
+```shell
+touch .env-compose
+```
 - .env-compose file for variables using in docker-compose.yml
 ```shell
 # main-db
@@ -12,6 +30,11 @@ DB_NAME=wm-db-name
 REDIS_PASSWORD=redis-password
 REDIS_USER=redis-user
 REDIS_USER_PASSWORD=redis-user-password
+```
+
+Into app directory create `.env` file with application configuration:
+```shell
+touch ./app/.env
 ```
 
 - .env file for variables using for project settings
@@ -51,15 +74,36 @@ CONFIG__SUPERUSER__INFO=<your admin info>
 # Starlette-admin
 # session middleware
 CONFIG__SESSION_MIDDLEWARE__SECRET_KEY=<your secret>
-
 ```
-- to generate secret you can use next command
+- to generate secrets you can use next command:
 ```shell
 python -c "import secrets; print(secrets.token_hex())"
 ```
 
+## Running
+Run docker:
+```shell
+docker compose --env-file .env-compose  up -d
+```
+
+Run the application:
+```shell
+uvicorn app.main:app --reload
+```
+
+
 ## Usage
+
+### Superuser
+Before using you have to create first superuser.
 - create superuser
 ```shell
 python -m app.scripts.create_superuser
 ```
+After that you can use superuser credentials to log in.
+
+### Admin
+Admin interface uses [starlette-admin](https://jowilf.github.io/starlette-admin/) and available by default on `localhost:8000/admin`
+
+### API documentation
+Endpoints available by default on `localhost:8000/docs`
