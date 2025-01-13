@@ -1,4 +1,14 @@
 services:
+  app:
+    build: .
+    depends_on:
+      main-db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    ports:
+      - 8080:8000
+
   main-db:
     image: postgres
     restart: always
