@@ -51,15 +51,15 @@ CONFIG__RUN__AUTO_RELOAD=True
 # Main database
 CONFIG__MAIN_DB__DB_USER=wm-user
 CONFIG__MAIN_DB__DB_PASSWORD=wm-password
-CONFIG__MAIN_DB__DB_HOST=localhost
-CONFIG__MAIN_DB__DB_PORT=5431
+CONFIG__MAIN_DB__DB_HOST=main-db
+CONFIG__MAIN_DB__DB_PORT=5432
 CONFIG__MAIN_DB__DB_NAME=wm-db-name
 
 # Redis
 CONFIG__REDIS__USER=redis-user
 CONFIG__REDIS__PASSWORD=redis-user-password
-CONFIG__REDIS__HOST=localhost
-CONFIG__REDIS__PORT=6380
+CONFIG__REDIS__HOST=redis
+CONFIG__REDIS__PORT=6379
 CONFIG__REDIS__DB=0
 
 # Fastapi-users
@@ -92,28 +92,6 @@ Run docker compose:
 docker compose --env-file .env-compose  up -d
 ```
 
-Get into app directory:
-
-```shell
-cd app
-```
-
-Create tables in database:
-```shell
-python -m migration_utils upgrade head
-```
-
-Before using the application you need to create the first superuser:
-
-```shell
-python -m app.scripts.create_superuser
-```
-
-Run the application:
-
-```shell
-cd .. && uvicorn app.main:app --reload
-```
 
 ## Usage
 
@@ -121,7 +99,7 @@ Use the credentials you provided in `.env` file to log in.
 
 ### Admin
 
-Admin interface uses [starlette-admin](https://jowilf.github.io/starlette-admin/) and is available by default at `localhost:8000/admin`
+Admin interface uses [starlette-admin](https://jowilf.github.io/starlette-admin/) and is available by default at `localhost:8080/admin`
 
 ### API documentation
-API endpoints and documentation are available by default at `localhost:8000/docs`
+API endpoints and documentation are available by default at `localhost:8080/docs`
