@@ -34,6 +34,11 @@ class RedisConnector:
 
         return self._redis
 
+    async def close_connection(self) -> None:
+        """Closes Redis connection."""
+
+        await self._redis.close()
+
 
 redis_connector = RedisConnector(
     host=settings.redis.host,
