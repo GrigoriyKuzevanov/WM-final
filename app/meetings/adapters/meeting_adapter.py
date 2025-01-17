@@ -1,5 +1,3 @@
-from typing import TypeVar
-
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
@@ -29,7 +27,7 @@ class MeetingAdapter(ModelAdapter):
             meeting_id (int): Meeting id
 
         Returns:
-            MM: Meeting object
+            Meeting: Meeting object
         """
 
         stmt = (
@@ -50,7 +48,7 @@ class MeetingAdapter(ModelAdapter):
             meeting_schema (MeetingCreate): Meeting create schema
 
         Returns:
-            MM: Created meeting object
+            Meeting: Created meeting object
         """
 
         meeting = Meeting(**meeting_schema.model_dump(), creator_id=current_user_id)
@@ -69,7 +67,7 @@ class MeetingAdapter(ModelAdapter):
             user (User): User object
 
         Returns:
-            MM: Meeting object with added user
+            Meeting: Meeting object with added user
         """
 
         meeting.users.append(user)
@@ -87,7 +85,7 @@ class MeetingAdapter(ModelAdapter):
             user (User): User object
 
         Returns:
-            MM: Meeting object with removed user
+            Meeting: Meeting object with removed user
         """
 
         meeting.users.remove(user)
@@ -104,7 +102,7 @@ class MeetingAdapter(ModelAdapter):
             user_id (int): User id
 
         Returns:
-            list[MM]: List of Meeting objects
+            list[Meeting]: List of Meeting objects
         """
 
         stmt = select(User).options(joinedload(User.meetings)).where(User.id == user_id)
