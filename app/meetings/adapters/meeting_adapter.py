@@ -9,8 +9,6 @@ from meetings.models import Meeting
 from meetings.schemas.meeting import MeetingCreate
 from users.models import User
 
-MM = TypeVar("MM", bound=Meeting)
-
 
 class MeetingAdapter(ModelAdapter):
     """Adapter class for performing database operations to the Meeting model."""
@@ -24,7 +22,7 @@ class MeetingAdapter(ModelAdapter):
 
         super().__init__(Meeting, session)
 
-    async def get_meeting_with_users(self, meeting_id: int) -> MM:
+    async def get_meeting_with_users(self, meeting_id: int) -> Meeting:
         """Gets Meeting with provided id with joined loaded users.
 
         Args:
@@ -44,7 +42,7 @@ class MeetingAdapter(ModelAdapter):
 
     async def create_meeting_by_user(
         self, current_user_id: int, meeting_schema: MeetingCreate
-    ) -> MM:
+    ) -> Meeting:
         """Creates meeting with provided schema and current user as a creator.
 
         Args:
@@ -63,7 +61,7 @@ class MeetingAdapter(ModelAdapter):
 
         return meeting
 
-    async def add_user(self, meeting: Meeting, user: User) -> MM:
+    async def add_user(self, meeting: Meeting, user: User) -> Meeting:
         """Add user to meeting.
 
         Args:
@@ -81,7 +79,7 @@ class MeetingAdapter(ModelAdapter):
 
         return meeting
 
-    async def remove_user(self, meeting: Meeting, user: User) -> MM:
+    async def remove_user(self, meeting: Meeting, user: User) -> Meeting:
         """Remove user from meeting.
 
         Args:
@@ -99,7 +97,7 @@ class MeetingAdapter(ModelAdapter):
 
         return meeting
 
-    async def read_by_user_id(self, user_id: int) -> list[MM]:
+    async def read_by_user_id(self, user_id: int) -> list[Meeting]:
         """Gets user meetings by provided user id.
 
         Args:
