@@ -1,5 +1,3 @@
-from typing import TypeVar
-
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
@@ -8,8 +6,6 @@ from core.model_adapter import ModelAdapter
 from structures.models import Role
 from structures.schemas.role import RoleCreate
 from users.models import User
-
-RM = TypeVar("RM", bound=Role)
 
 
 class RoleAdapter(ModelAdapter):
@@ -26,7 +22,7 @@ class RoleAdapter(ModelAdapter):
 
     async def create_role(
         self, role_create_schema: RoleCreate, structure_id: int
-    ) -> RM:
+    ) -> Role:
         """Creates a new role with provided structure id.
 
         Args:
@@ -34,7 +30,7 @@ class RoleAdapter(ModelAdapter):
             structure_id (int): Structure id
 
         Returns:
-            RM: Created role object
+            Role: Created role object
         """
 
         role = self.model(**role_create_schema.model_dump(), structure_id=structure_id)
@@ -44,7 +40,7 @@ class RoleAdapter(ModelAdapter):
 
         return role
 
-    async def bound_user(self, role: Role, user: User) -> RM:
+    async def bound_user(self, role: Role, user: User) -> Role:
         """Bound user to role.
 
         Args:
@@ -52,7 +48,7 @@ class RoleAdapter(ModelAdapter):
             user (User): User object
 
         Returns:
-            RM: Role object with bounded user
+            Role: Role object with bounded user
         """
 
         role.users.append(user)
@@ -62,28 +58,28 @@ class RoleAdapter(ModelAdapter):
 
         return role
 
-    async def get_with_users(self, role_id: int) -> RM:
+    async def get_with_users(self, role_id: int) -> Role:
         """Gets Role with provided id with joined loaded users.
 
         Args:
             role_id (int): Role id
 
         Returns:
-            RM: Role object
+            Role: Role object
         """
 
         stmt = select(Role).options(joinedload(Role.users)).where(Role.id == role_id)
 
         return await self.session.scalar(stmt)
 
-    async def get_with_subordinates(self, role_id: int) -> RM:
+    async def get_with_subordinates(self, role_id: int) -> Role:
         """Gets Role with provided id with joined loaded suboridinates.
 
         Args:
             role_id (int): Role id
 
         Returns:
-            RM: Role object
+            Role: Role object
         """
 
         stmt = (
@@ -94,14 +90,14 @@ class RoleAdapter(ModelAdapter):
 
         return await self.session.scalar(stmt)
 
-    async def get_with_superiors(self, role_id: int) -> RM:
+    async def get_with_superiors(self, role_id: int) -> Role:
         """Gets Role with provided id with joined loaded get_with_superiors.
 
         Args:
             role_id (int): Role id
 
         Returns:
-            RM: Role object
+            Role: Role object
         """
 
         stmt = (
