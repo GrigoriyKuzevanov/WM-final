@@ -1,5 +1,4 @@
 import decimal
-from typing import TypeVar
 
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -10,8 +9,6 @@ from users.models import User
 from utils.get_date_days_ago import get_date_days_ago
 from work_tasks.models import WorkTask
 from work_tasks.schemas import WorkTaskCreate, WorkTaskStatusEnum, WorkTaskUpdateStatus
-
-WTM = TypeVar("WTM", bound=WorkTask)
 
 
 class WorkTaskAdapter(ModelAdapter):
@@ -30,7 +27,7 @@ class WorkTaskAdapter(ModelAdapter):
         self,
         task_create_schema: WorkTaskCreate,
         creator_id: int,
-    ) -> WTM:
+    ) -> WorkTask:
         """Creates task with provided creator id.
 
         Args:
@@ -38,7 +35,7 @@ class WorkTaskAdapter(ModelAdapter):
             creator_id (int): Creator id
 
         Returns:
-            WTM: Created WorkTask object
+            WorkTask: Created WorkTask object
         """
 
         work_task = WorkTask(
@@ -56,7 +53,7 @@ class WorkTaskAdapter(ModelAdapter):
 
     async def update_status(
         self, status_update_schema: WorkTaskUpdateStatus, task: WorkTask
-    ) -> WTM:
+    ) -> WorkTask:
         """Updates status of the work task using WorkTaskStatusEnum values.
 
         Args:
@@ -65,7 +62,7 @@ class WorkTaskAdapter(ModelAdapter):
             task (WorkTask): WorkTask object
 
         Returns:
-            WTM: WorkTask object
+            WorkTask: WorkTask object
         """
 
         new_status: WorkTaskStatusEnum = status_update_schema.model_dump().get("status")
@@ -122,28 +119,28 @@ class WorkTaskAdapter(ModelAdapter):
 
         return await self.session.scalar(stmt)
 
-    async def get_user_assigned_tasks(self, user_id: int) -> list[WTM]:
+    async def get_user_assigned_tasks(self, user_id: int) -> list[WorkTask]:
         """Gets all tasks where user with provided user id is assignee.
 
         Args:
             user_id (int): User id
 
         Returns:
-            list[WTM]: List of task models
+            list[WorkTask]: List of task models
         """
 
         stmt = select(self.model).where(self.model.assignee_id == user_id)
 
         return await self.session.scalars(stmt)
 
-    async def get_user_created_tasks(self, user_id: int) -> list[WTM]:
+    async def get_user_created_tasks(self, user_id: int) -> list[WorkTask]:
         """Gets all tasks where user with provided user id is creator.
 
         Args:
             user_id (int): User id
 
         Returns:
-            list[WTM]: List of task models
+            list[WorkTask]: List of task models
         """
 
         stmt = select(self.model).where(self.model.creator_id == user_id)
