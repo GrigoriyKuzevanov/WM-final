@@ -1,13 +1,9 @@
-from typing import TypeVar
-
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.model_adapter import ModelAdapter
 from structures.models import Relation
 from structures.schemas.realtion import RelationCreate
-
-RNM = TypeVar("RNM", bound=Relation)
 
 
 class RelationAdapter(ModelAdapter):
@@ -26,7 +22,7 @@ class RelationAdapter(ModelAdapter):
         self,
         relation_create_schema: RelationCreate,
         structure_id: int,
-    ) -> RNM:
+    ) -> Relation:
         """Creates new realtion and bounds it to structure.
 
         Args:
@@ -34,7 +30,7 @@ class RelationAdapter(ModelAdapter):
             structure_id (int): Structure id to bound
 
         Returns:
-            RNM: Created relation object
+            Relation: Created relation object
         """
         relation = self.model(
             **relation_create_schema.model_dump(), structure_id=structure_id
@@ -50,7 +46,7 @@ class RelationAdapter(ModelAdapter):
         self,
         superior_id: int,
         subordinate_id: int,
-    ) -> RNM:
+    ) -> Relation:
         """Gets relation with provided superior and subordinate ids."""
 
         stmt = select(Relation).where(
