@@ -1,5 +1,3 @@
-from typing import TypeVar
-
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -8,8 +6,6 @@ from structures.models import Role, Structure
 from structures.schemas.role import RoleCreateWithStructure
 from structures.schemas.structure import StructureCreate
 from users.models import User
-
-SM = TypeVar("SM", bound=Structure)
 
 
 class StructureAdapter(ModelAdapter):
@@ -24,14 +20,14 @@ class StructureAdapter(ModelAdapter):
 
         super().__init__(Structure, session)
 
-    async def read_user_structure(self, user_id: int) -> SM | None:
+    async def read_user_structure(self, user_id: int) -> Structure | None:
         """Retrieves the structure associated with a specific user through his role.
 
         Args:
             user_id (int): Id of the user
 
         Returns:
-            SM | None: Structure object from the db or None if not found
+            Structure | None: Structure object from the db or None if not found
         """
 
         stmt = (
@@ -59,7 +55,7 @@ class StructureAdapter(ModelAdapter):
 
     async def create_structure_with_admin_role(
         self, structure_schema: StructureCreate, current_user_id: int
-    ) -> SM:
+    ) -> Structure:
         """Creates a new structure. Also creates a new "Team administrator" role
         associated with current user and created structure.
 
@@ -69,7 +65,7 @@ class StructureAdapter(ModelAdapter):
             current_user_id (int): Current user id
 
         Returns:
-            SM: Created structure object from db
+            Structure: Created structure object from db
         """
 
         structure = self.model(**structure_schema.model_dump())
