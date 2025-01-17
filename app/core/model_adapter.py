@@ -1,12 +1,8 @@
-from typing import TYPE_CHECKING
-
+from pydantic import BaseModel as PydanticSchema
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-if TYPE_CHECKING:
-    from pydantic import BaseModel as PydanticSchema
-
-    from core.models import Base as SQLAlchemyBaseModel
+from core.models import Base as SQLAlchemyBaseModel
 
 
 class ModelAdapter:
