@@ -1,0 +1,94 @@
+[tool.poetry]
+name = "wm-final"
+version = "0.1.0"
+description = ""
+authors = ["Григорий Кузеванов <grkuzevanov@gmail.com>"]
+readme = "README.md"
+package-mode = false
+
+[tool.poetry.dependencies]
+python = "^3.12"
+fastapi = "^0.115.6"
+pydantic-settings = "^2.6.1"
+sqlalchemy = {extras = ["asyncio"], version = "^2.0.36"}
+uvicorn = "^0.32.1"
+asyncpg = "^0.30.0"
+alembic = "^1.14.0"
+fastapi-users = {extras = ["sqlalchemy"], version = "^14.0.0"}
+redis = {extras = ["asyncio"], version = "^5.2.1"}
+starlette-admin = "^0.14.1"
+itsdangerous = "^2.2.0"
+
+
+[tool.poetry.group.dev.dependencies]
+pre-commit = "^4.0.1"
+ruff = "^0.8.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+include = ["*.py"]
+exclude = [
+    "*/.*",
+    "*/__pycache__/*",
+    "*.test.py",
+        ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".ipynb_checkpoints",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pyenv",
+    ".pytest_cache",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    ".vscode",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "site-packages",
+    "venv",
+]
+target-version = "py312"
+line-length = 88
+indent-width = 4
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B"]
+ignore = [
+    "B008",
+    "E402",
+    "F811",
+    "F401"
+]
+
+[tool.ruff.lint.isort]
+known-first-party = [
+    "core",
+    "migration_utils",
+    "main",
+    "users",
+    "structures",
+    "meetings",
+    "work_tasks",
+    "utils"
+]
