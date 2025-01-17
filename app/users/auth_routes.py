@@ -2,7 +2,7 @@ from fastapi import APIRouter
 
 from core.config import settings
 
-from .dependencies.backend import authentication_backend
+from .dependencies.backend import redis_authentication_backend
 from .dependencies.fastapi_users_routes import fastapi_users
 from .schemas import UserCreate, UserRead
 
@@ -14,7 +14,7 @@ router = APIRouter(
 # /login
 # /logout
 router.include_router(
-    router=fastapi_users.get_auth_router(authentication_backend),
+    router=fastapi_users.get_auth_router(redis_authentication_backend),
 )
 
 
