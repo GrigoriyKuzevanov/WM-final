@@ -1,33 +1,32 @@
-from typing import Type, TypeVar
+from typing import TYPE_CHECKING
 
-from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from core.models import Base
+if TYPE_CHECKING:
+    from pydantic import BaseModel as PydanticSchema
 
-BM = TypeVar("BM", bound=Base)
-PBM = TypeVar("PBM", bound=BaseModel)
+    from core.models import Base as SQLAlchemyBaseModel
 
 
 class ModelAdapter:
     """Adapter class for performing database operations on SQLAlchemy models."""
 
-    def __init__(self, model: Type[BM], session: AsyncSession) -> None:
+    def __init__(self, model: SQLAlchemyBaseModel, session: AsyncSession) -> None:
         """Initializes the adapter
 
         Args:
-            model (Type[BM]): SQLAlchemy model class
+            model (SQLAlchemyBaseModel): SQLAlchemy model class
             session (AsyncSession): Async session
         """
         self.model = model
         self.session = session
 
-    async def read_all_items(self) -> list[BM]:
+    async def read_all_items(self) -> list[SQLAlchemyBaseModel]:
         """Retrieves all items from db.
 
         Returns:
-            list[BM]: List of all objects from db
+            list[SQLAlchemyBaseModel]: List of all objects from db
         """
 
         stmt = select(self.model)
@@ -35,28 +34,28 @@ class ModelAdapter:
 
         return results.all()
 
-    async def read_item_by_id(self, item_id: int) -> BM | None:
+    async def read_item_by_id(self, item_id: int) -> SQLAlchemyBaseModel | None:
         """Retrieves a single item by it's id
 
         Args:
             item_id (int): id of the item to retrieve
 
         Returns:
-            BM | None: Object from the db or None if not found
+            SQLAlchemyBaseModel | None: Object from the db or None if not found
         """
 
         result = await self.session.get(self.model, item_id)
 
         return result
 
-    async def create_item(self, item_schema: PBM) -> BM:
+    async def create_item(self, item_schema: PydanticSchema) -> SQLAlchemyBaseModel:
         """Creates a new item using the provided schema.
 
         Args:
-            item_schema (PBM): Pydantic schema containing item data
+            item_schema (PydanticSchema): Pydantic schema containing item data
 
         Returns:
-            BM: Created object from db
+            SQLAlchemyBaseModel: Created object from db
         """
 
         item = self.model(**item_schema.model_dump())
@@ -67,15 +66,17 @@ class ModelAdapter:
 
         return item
 
-    async def update_item(self, update_schema: PBM, item: BM) -> BM:
+    async def update_item(
+        self, update_schema: PydanticSchema, item: SQLAlchemyBaseModel
+    ) -> SQLAlchemyBaseModel:
         """Updates item with the provided schema.
 
         Args:
-            update_schema (PBM): Pydantic schema with data to update
-            item (BM): Object to update
+            update_schema (PydanticSchema): Pydantic schema with data to update
+            item (SQLAlchemyBaseModel): Object to update
 
         Returns:
-            BM: Updated object from db
+            SQLAlchemyBaseModel: Updated object from db
         """
 
         for key, value in update_schema.model_dump().items():
@@ -86,11 +87,11 @@ class ModelAdapter:
 
         return item
 
-    async def delete_item(self, item: BM) -> None:
+    async def delete_item(self, item: SQLAlchemyBaseModel) -> None:
         """Deletes item from db.
 
         Args:
-            item (BM): Object to delete
+            item (SQLAlchemyBaseModel): Object to delete
         """
 
         await self.session.delete(item)
