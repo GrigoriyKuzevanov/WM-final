@@ -238,7 +238,7 @@ async def remove_user(
 
 
 @router.get(
-    "/my",
+    "/me",
     response_model=list[MeetingOut],
     summary="Get user's meetings",
     description="""

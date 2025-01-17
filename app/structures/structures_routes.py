@@ -19,7 +19,7 @@ router = APIRouter(
 
 
 @router.get(
-    "/my",
+    "/me",
     response_model=StructureOut,
     summary="Get a user's structure",
     description="""
@@ -116,7 +116,7 @@ async def create_structure(
 
 
 @router.put(
-    "/my",
+    "/me",
     response_model=StructureOut,
     summary="Update a user's structure",
     description="""

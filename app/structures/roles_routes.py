@@ -19,7 +19,7 @@ router = APIRouter(
 
 
 @router.get(
-    "/my",
+    "/me",
     response_model=RoleOut,
     summary="Get a user's role",
     description="""
@@ -132,7 +132,7 @@ async def bound_user(
 
 
 @router.put(
-    "/my",
+    "/me",
     response_model=RoleOut,
     summary="Update a user's role",
     description="""
